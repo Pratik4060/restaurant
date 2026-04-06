@@ -42,7 +42,7 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
     };
   };
 
-  const { category, img, accent } = getMealInfo();
+  const { category, img,  } = getMealInfo();
 
   return (
       <div className="mx-auto max-w-[1100px] overflow-hidden  bg-white shadow-[0_28px_70px_rgba(76,39,18,0.14)]">
