@@ -6,6 +6,10 @@ import lunch from "../assets/lunch.svg";
 import Breakfast from "../assets/Breakfast.svg";
 import Dinner1 from "../assets/Dinner1.svg";
 import bell from "../assets/bell.svg";
+import sandwhich from "../assets/sandwhich.svg"
+import bite from "../assets/bite.svg"
+import combo from "../assets/combo.svg"
+import freeadd from "../assets/freeadd.svg"
 import type { MealCategory, UserData } from "../types";
 
 interface HomePageProps {
@@ -14,35 +18,52 @@ interface HomePageProps {
 }
 
 const OFFERS = [
-  {
-    title: "Free Add-on",
-    desc: "Free Fresh Juice on orders above ₹399. Auto applied at checkout",
-    img: "https://cdn-icons-png.flaticon.com/512/3105/3105807.png",
-    gradient: "linear-gradient(135deg, #134e4a 0%, #065f46 58%, #064e3b 100%)",
-  },
+
   {
     title: "Flat Discount",
     desc: "Get 20% OFF on your total bill. Valid on orders above ₹299",
-    img: "https://cdn-icons-png.flaticon.com/512/3480/3480618.png",
-    gradient: "linear-gradient(135deg, #6f432d 0%, #7e1f14 58%, #7e0909 100%)",
+    img: sandwhich,
+    gradient: "linear-gradient(117.14deg, #785641 5.65%, #5F0404 96.69%)",
   },
-  {
+    {
     title: "Combo Offer",
     desc: "Buy 1 Get 1 Free on Breakfast items. Limited time only.",
-    img: "https://cdn-icons-png.flaticon.com/512/6556/6556219.png",
-    gradient: "linear-gradient(135deg, #3f4c38 0%, #2c3e2d 58%, #1a2e1d 100%)",
+    img: combo,
+    gradient: "background: linear-gradient(114.35deg, #2A460D 0.77%, #666666 97.98%)",
   },
-  {
+{
     title: "Quick Bite Deal",
     desc: "Flat ₹50 OFF on Quick Bites. On orders above ₹199",
-    img: "https://cdn-icons-png.flaticon.com/512/590/590685.png",
-    gradient: "linear-gradient(135deg, #4c1d95 0%, #831843 58%, #701a75 100%)",
+    img: bite,
+    gradient: "background: linear-gradient(115.74deg, #970808 4.97%, #053F62 100%)",
   },
+{
+    title: "Free Add-on",
+    desc: "Free Fresh Juice on orders above ₹399. Auto applied at checkout",
+    img: freeadd,
+    gradient: "background: linear-gradient(115.68deg, #446B83 1.81%, #116848 100%)",
+  },
+  ];
+
+  const MEAL_DATA: { category: MealCategory; img: string; background: string }[] = [
+  { category: "Breakfast", img: Breakfast, background:"linear-gradient(160.72deg, rgba(184, 194, 177, 0.2) 31.81%, rgba(59, 105, 6, 0.2) 62.84%, rgba(181, 113, 22, 0.2) 95.75%)"},
+  { category: "Lunch", img: lunch,  background: "linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)" },
+  { category: "Dinner", img: Dinner1, background: "linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)" },
 ];
+
 
 const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
   const [foodType, setFoodType] = useState<"Veg" | "Non Veg">("Veg");
   const [currentOffer, setCurrentOffer] = useState(0);
+
+
+  const getInitialMealIndex = () => {
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 12) return 0; // Breakfast
+    if (hour >= 12 && hour < 17) return 1; // Lunch
+    return 2; // Dinner
+  };
+  const[currentMealIdx , setCurrentMealIdx] = useState(getInitialMealIndex());
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -51,22 +72,16 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const getMealInfo = (): {
-    category: MealCategory;
-    img: string;
-    accent: string;
-  } => {
-    const hour = new Date().getHours();
-    if (hour >= 9 && hour < 12) {
-      return { category: "Breakfast", img: Breakfast, accent: "#ffd57a" };
-    }
-    if (hour >= 12 && hour < 17) {
-      return { category: "Lunch", img: lunch, accent: "#ffd262" };
-    }
-    return { category: "Dinner", img: Dinner1, accent: "#ffc37d" };
-  };
+  useEffect (() =>{
+    const timer  = setInterval(() =>{
+      setCurrentMealIdx((prev) => (prev+1) % MEAL_DATA.length)
+    },5000);
+    return () => clearInterval(timer)
+  },[]);
 
-  const { category, img } = getMealInfo();
+  const currentMeal =MEAL_DATA[currentMealIdx];
+
+
 
     return (
       <div className="mx-auto max-w-[1100px] overflow-hidden  ">
@@ -120,7 +135,7 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
                   className="absolute inset-0 flex items-center justify-between"
                 >
                   <div className="flex-1 pr-4">
-                    <p className="mb-2 text-[1.45rem] font-bold tracking-tight">
+                    <p className="mb-2 text-[1.45rem] playfair font-bold tracking-tight">
                       {OFFERS[currentOffer].title}
                     </p>
                     <p className="max-w-[240px] text-sm leading-relaxed text-white/90">
@@ -131,9 +146,7 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
                     </button>
                   </div>
 
-                  <motion.div
-                    initial={{ scale: 0.8, rotate: 5 }}
-                    animate={{ scale: 1, rotate: 0 }}
+                  <div
                     className="flex h-[140px] w-[140px] items-center justify-center"
                   >
                     <img
@@ -141,7 +154,7 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
                       className="h-full w-full object-contain drop-shadow-2xl"
                       alt="food"
                     />
-                  </motion.div>
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -162,83 +175,76 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
           </motion.div>
 
           {/* Bottom section - NO CHANGES NEEDED HERE */}
-          <div className="bg-[radial-gradient(circle_at_top,#fff2cb_0%,#ffe0b4_30%,#ecf4c7_78%,#d6f7cf_100%)] px-6 py-8">
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <button
-                  type="button"
-                  onClick={() => setFoodType("Veg")}
-                  className="flex items-center gap-3 text-sm font-medium text-[#1d1d1d]"
-                >
-                  <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border ${
-                      foodType === "Veg"
-                        ? "border-[#6bb56a] bg-white"
-                        : "border-gray-300 bg-white"
-                    }`}
-                  >
-                    <span
-                      className={`h-3.5 w-3.5 rounded-full ${
-                        foodType === "Veg" ? "bg-[#38b34f]" : "bg-transparent"
-                      }`}
-                    />
-                  </span>
-                  Veg
-                </button>
+      <motion.div 
+        animate={{ background: currentMeal.background }}
+        transition={{ duration: 1.2, ease: "linear" }}
+        className="px-6 py-8 min-h-[550px]"
+      >
+        {/* Toggle Controls */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex gap-6">
+            <button onClick={() => setFoodType("Veg")} className="flex items-center gap-2 text-sm font-medium ">
+              <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${foodType === 'Veg' ? 'border-green-500' : 'border-gray-300'}`}>
+                {foodType === 'Veg' && <div className="h-2.5 w-2.5 rounded-full bg-green-500" />}
+              </div> Veg
+            </button>
+            <button onClick={() => setFoodType("Non Veg")} className="flex items-center gap-2 text-sm font-medium">
+              <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center bg-white ${foodType === 'Non Veg' ? 'border-red-500' : 'border-gray-300'}`}>
+                {foodType === 'Non Veg' && <div className="h-2.5 w-2.5 rounded-full bg-red-500" />}
+              </div> Non Veg
+            </button>
+          </div>
+          <span className="rounded-full bg-black px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider">Most Popular</span>
+        </div>
 
-                <button
-                  type="button"
-                  onClick={() => setFoodType("Non Veg")}
-                  className="flex items-center gap-3 text-sm font-medium text-[#1d1d1d]"
-                >
-                  <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border ${
-                      foodType === "Non Veg"
-                        ? "border-[#d66767] bg-white"
-                        : "border-gray-300 bg-white"
-                    }`}
-                  >
-                    <span
-                      className={`h-3.5 w-3.5 rounded-full ${
-                        foodType === "Non Veg"
-                          ? "bg-[#d66767]"
-                          : "bg-transparent"
-                      }`}
-                    />
-                  </span>
-                  Non Veg
-                </button>
-              </div>
-
-              <span className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white shadow-md">
-                Most Popular
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <h2 className="mb-8 text-[2rem] font-medium tracking-tight text-[#25160e]">
-                {category}
+        {/* Rolling Content Area */}
+        <div className="relative flex flex-col items-center text-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentMeal.category}
+              // ANIMATION SETTINGS:
+              initial={{ x:-60 ,y: 60, opacity: 0 ,rotate:-45}}   // Start from bottom
+              animate={{ x: 0,y:0, opacity: 1 ,rotate:0}}    // Move to center
+              exit={{ x: 60,y:60, opacity: 0 ,rotate:45}}     // Exit to top
+              transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1],        x: { duration: 0.8, ease: [0.4, 0, 0.2, 1] },
+        y: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+ }} // Smooth "Video" timing
+              className="flex flex-col items-center w-full"
+            >
+              {/* Category Title */}
+              <h2 className="mb-6 text-[2.5rem]  playfair tracking-tight">
+                {currentMeal.category}
               </h2>
 
-              <button
-                type="button"
-                onClick={() => onSelect(category)}
-                className="group flex flex-col items-center"
-              >
-                <div className="h-[290px] w-[290px]">
-                  <img src={img} alt={category} className="" />
-                </div>
-                <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white shadow-lg">
-                  Explorer
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-};
+              {/* Food Plate Image */}
+              <div className="relative h-[280px] w-[280px] mb-10 flex items-center justify-center">
+                <motion.img 
+                  initial={{ scale: 0.8, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.8 }}
+                  src={currentMeal.img} 
+                  alt={currentMeal.category} 
+                  className="max-h-full max-w-full drop-shadow-[0_20px_35px_rgba(0,0,0,0.15)]"
+                />
+              </div>
 
+              {/* Explorer Button */}
+
+            </motion.div>
+          </AnimatePresence>
+                        <button
+                type="button"
+                onClick={() => onSelect(currentMeal.category)}
+                className="group flex items-center gap-3 rounded-full bg-black px-10 py-4 text-white shadow-2xl hover:scale-105 transition-transform"
+              >
+                <span className="text-sm font-bold">Explorer</span>
+                <ArrowRight className="h-5 w-5" />
+              </button>
+        </div>
+      </motion.div>
+    </div>
+    </div>
+  );
+};
 
 export default HomePage;
