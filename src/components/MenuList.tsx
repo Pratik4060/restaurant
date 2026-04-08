@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import MenuCard from './MenuCard';
-import  { menuItems, type MenuItem } from './Data/menudata';
-
-type TabType = 'All' | 'Bestseller' | 'Beverages' | 'Health';
+import { menuItems, type BeverageTab, type HealthTab, type MainTab, type MenuItem } from './Data/BreakFast';
 
 interface Props {
-  activeTab: TabType;
+  activeTab: MainTab;
+  activeBeverageTab: BeverageTab;
+  activeHealthTab: HealthTab;
   onAddToOrder: (item: MenuItem) => void;
 }
 
-const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder }) => {
+const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder ,activeBeverageTab ,activeHealthTab}) => {
   const filteredItems = useMemo(() => {
     if (activeTab === 'All') {
       return menuItems;
@@ -17,8 +17,27 @@ const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder }) => {
     if (activeTab === 'Bestseller') {
       return menuItems.filter(item => item.isBestseller);
     }
+    if (activeTab === 'Beverages') {
+      const beverageItems = menuItems.filter(item => item.category === 'Beverages');
+
+      if (activeBeverageTab === 'All') {
+        return beverageItems;
+      }
+
+      return beverageItems.filter(item => item.subCategory === activeBeverageTab);
+    }
+
+    if (activeTab === 'Health') {
+      const healthItems = menuItems.filter(item => item.category === 'Health');
+      return healthItems.filter(item => item.subCategory === activeHealthTab);
+
+      }
+
+    
+
+
     return menuItems.filter(item => item.category === activeTab);
-  }, [activeTab]);
+  }, [activeTab,activeBeverageTab,activeHealthTab]);
 
   if (filteredItems.length === 0) {
     return (

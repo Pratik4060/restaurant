@@ -3,7 +3,7 @@ import type { MealCategory } from '../types';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuList from '../components/MenuList';
 import BottomNav from '../components/BottomNav';
-import type { MenuItem } from '../components/Data/menudata';
+import type { BeverageTab, HealthTab, MainTab, MenuItem } from '../components/Data/BreakFast';
 import bell from '../assets/bell.svg'
 import back from "../assets/back.svg"
 import search from "../assets/search.svg"
@@ -17,7 +17,11 @@ interface Props {
 
 const MenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
   const displayName = userName.trim() || 'Rohit';
-  const [activeTab, setActiveTab] = useState<'All' | 'Bestseller' | 'Beverages' | 'Health'>('All');
+  const [activeTab, setActiveTab] = useState<MainTab>('All');
+  const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
+  const [activeHealthTab , setActiveHealthTab] = useState<HealthTab>('Veg')
+  const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
+  const healthTabs:HealthTab[] = ['Veg','Non Veg'];
 
   const handleAddToOrder = (item: MenuItem) => {
     console.log('Added to order:', item);
@@ -37,7 +41,7 @@ const MenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
       </div>
 <div className="flex justify-center">
   <h1 className="text-[24px] font-bold border-b-4 border-orange-400 pb-1">
-    Breakfast
+  {category}
   </h1>
 </div>
       {/* Greeting */}
@@ -72,10 +76,51 @@ const MenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
 </div>
 
       {/* Category Tabs */}
-      <CategoryTabs activeTab={activeTab} onTabChange={setActiveTab} />
+<CategoryTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+{activeTab === 'Beverages' && (
+  <div className=" montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
+    {beverageTabs.map((tab) => (
+      <button
+        key={tab}
+        onClick={() => setActiveBeverageTab(tab as BeverageTab)}
+        className={`pb-1 whitespace-nowrap ${
+          activeBeverageTab === tab
+            ? 'font-semibold border-b-2 border-black text-black'
+            : 'text-gray-500'
+        }`}
+      >
+        {tab}
+      </button>
+    ))}
+  </div>
+)}
+
+{activeTab === 'Health' && (
+  <div className=" montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
+    {healthTabs.map((tab) => (
+      <button
+        key={tab}
+        onClick={() => setActiveHealthTab(tab as HealthTab)}
+        className={`pb-1 whitespace-nowrap ${
+          activeHealthTab === tab
+            ? 'font-semibold border-b-2 border-black text-black'
+            : 'text-gray-500'
+        }`}
+      >
+        {tab}
+      </button>
+    ))}
+  </div>
+)}
+      
+      
+      
       {/* Menu List */}
+
       <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
-        <MenuList activeTab={activeTab} onAddToOrder={handleAddToOrder} />
+        <MenuList activeTab={activeTab} activeBeverageTab={activeBeverageTab} activeHealthTab={activeHealthTab}
+ onAddToOrder={handleAddToOrder} />
       </div>
 
       {/* Bottom Navigation */}

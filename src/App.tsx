@@ -5,6 +5,7 @@ import DetailsForm from './pages/DetailsForm';
 import Home from './pages/HomePage';
 import MenuDetails from './pages/MenuDetails';
 import type{ AppStep, UserData, MealCategory } from './types';
+import LunchMenuDetails from './pages/LunchMenuDetails';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>('scanner');
@@ -44,13 +45,20 @@ const App: React.FC = () => {
           }} 
         />
       )}
-      {step === 'menu' && (
+      {step === 'menu' && selectedCategory === 'Breakfast' && (
         <MenuDetails 
           category={selectedCategory} 
           userName={userData.name}
           onBack={() => setStep('home')} 
         />
       )}
+      { step === 'menu' && selectedCategory === 'Lunch' && (
+          <LunchMenuDetails 
+           category={selectedCategory}
+           userName={userData.name}
+          onBack={() => setStep('home')} 
+          />
+        )}
     </div>
   );
 };

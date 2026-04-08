@@ -1,32 +1,35 @@
-import { div } from 'framer-motion/client';
 import React from 'react';
-
-type TabType = 'All' | 'Bestseller' | 'Beverages' | 'Health' | 'Quick Bites';
+import type { MainTab } from './Data/BreakFast';
 
 interface Props {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
+  activeTab: MainTab;
+  onTabChange: (tab: MainTab) => void;
 }
 
 const CategoryTabs: React.FC<Props> = ({ activeTab, onTabChange }) => {
-  const tabs: TabType[] = ['All', 'Bestseller', 'Beverages', 'Health','Quick Bites'];
+  const tabs: MainTab[] = ['All', 'Bestseller', 'Beverages', 'Health', 'Quick Bites'];
 
   return (
-   <div className='px-5'>
-<div className=" bg-[#FFF4DF] flex gap-8 overflow-x-auto py-2 border-b border-gray-100">{tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => onTabChange(tab)}
-          className={`montserrat text-[20px] pb-2 whitespace-nowrap transition-colors ${
-            activeTab === tab 
-              ? 'text-black-500 font-semibold border-b-2 border-black-500' 
-              : 'text-black-400'
-          }`}
-        >
-          {tab}
-        </button>
-      ))}
-    </div>
+    <div className="px-5">
+      <div className="montserrat bg-[#FFF4DF] px-4 py-2 flex gap-13 overflow-x-auto scrollbar-hide">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => onTabChange(tab)}
+            className={`text-[16px] whitespace-nowrap transition-all pb-1 ${
+              activeTab === tab
+                ? 'font-semibold border-b-2 border-black text-black'
+                : 'text-gray-500'
+            }`}
+          >
+            {tab}
+          </button>
+
+
+        ))}
+
+        
+      </div>
     </div>
   );
 };
