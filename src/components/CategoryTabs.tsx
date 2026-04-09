@@ -1,5 +1,5 @@
 import React from 'react';
-import type { MainTab } from './Data/BreakFast';
+import type { MainTab } from './Breakfast/Data';
 
 interface Props {
   activeTab: MainTab;

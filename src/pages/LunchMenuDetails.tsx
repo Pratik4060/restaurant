@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import type { MealCategory } from '../types';
 import BottomNav from '../components/BottomNav';
-import MenuCard from '../components/MenuCard';
-import type { LunchItem, LunchTab,BeverageTab } from '../components/Data/Lunch/LunchTypes';
-import { lunchItems } from '../components/Data/Lunch/lunchData';
+import type { LunchItem, LunchTab } from '../components/Lunch/Data';
+import type { BeverageTab } from '../components/Breakfast/Data';
+import type { BreakfastItem } from '../components/Breakfast/Data';
 import bell from '../assets/bell.svg';
 import back from '../assets/back.svg';
 import search from '../assets/search.svg';
 import microphone from '../assets/microphone.svg';
+import LunchList from '../components/Lunch/LunchList';
 
 interface Props {
   category: MealCategory;
@@ -22,14 +23,10 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
     const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   
 
-  const tabs: LunchTab[] = ['All', 'Main Course', 'Starters' , 'Rice' ,' Bestseller' , 'Beverages' , 'Dessert'];
+  const tabs: LunchTab[] = ['All', 'Main Course', 'Starters' , 'Rice' ,'Bestseller' , 'Beverages' , 'Dessert'];
 
-  const filteredItems =
-    activeTab === 'All'
-      ? lunchItems
-      : lunchItems.filter((item) => item.category === activeTab);
 
-  const handleAddToOrder = (item: LunchItem) => {
+  const handleAddToOrder = (item: LunchItem | BreakfastItem) => {
     console.log('Added to order:', item);
   };
 
@@ -111,10 +108,9 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
       )}
       
 
-      <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto space-y-4">
-        {filteredItems.map((item) => (
-          <MenuCard key={item.id} item={item} onAddToOrder={handleAddToOrder} />
-        ))}
+      <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
+        <LunchList activeTab={activeTab} activeBeverageTab={activeBeverageTab}
+ onAddToOrder={handleAddToOrder} />
       </div>
 
       <BottomNav />

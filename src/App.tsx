@@ -3,7 +3,7 @@ import QRScanner from './pages/QRScanner';
 import LoadingAnim from './pages/LoadingAnim';
 import DetailsForm from './pages/DetailsForm';
 import Home from './pages/HomePage';
-import MenuDetails from './pages/MenuDetails';
+import BreakfastDetails from './pages/BreakfastDetails';
 import type{ AppStep, UserData, MealCategory } from './types';
 import LunchMenuDetails from './pages/LunchMenuDetails';
 
@@ -46,7 +46,7 @@ const App: React.FC = () => {
         />
       )}
       {step === 'menu' && selectedCategory === 'Breakfast' && (
-        <MenuDetails 
+        <BreakfastDetails 
           category={selectedCategory} 
           userName={userData.name}
           onBack={() => setStep('home')} 
