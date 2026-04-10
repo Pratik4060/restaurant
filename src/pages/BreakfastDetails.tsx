@@ -4,7 +4,7 @@ import { useOrder } from '../contexts/OrderContext';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuList from '../components/Breakfast/BreakfastList';
 import BottomNav from '../components/BottomNav';
-import OrderPage from './OrdersPage'; // Import the OrderPage we created
+import OrderPage from './OrdersPage';
 import type { BeverageTab, HealthTab, BreakfastTab, BreakfastItem } from '../components/Breakfast/Data';
 import bell from '../assets/bell.svg'
 import back from "../assets/back.svg"
@@ -19,22 +19,31 @@ interface Props {
 }
 
 const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
-  const { getTotalItems } = useOrder(); // Get total items count
+  const { getTotalItems, addToOrder } = useOrder(); // Make sure to get addToOrder
   const [activeTab, setActiveTab] = useState<BreakfastTab>('All');
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
-  const [currentView, setCurrentView] = useState<'menu' | 'orders'>('menu'); // Track current view
+  const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu'); // Track current view
   
   const displayName = userName.trim() || 'Rohit';
   const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   const healthTabs: HealthTab[] = ['Veg', 'Non Veg'];
 
   const handleAddToOrder = (item: BreakfastItem) => {
-    console.log('Added to order:', item);
+    // Convert BreakfastItem to OrderItem format and add to context
+    const orderItem = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      image: item.image || ''
+    };
+    addToOrder(orderItem);
+    console.log('Added to order:', orderItem);
   };
 
   // Handle bottom nav clicks
-  const handleNavChange = (view: 'menu' | 'orders') => {
+  const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
     setCurrentView(view);
   };
 

@@ -20,10 +20,16 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
   const displayName = userName.trim() || 'Rohit';
   const [activeTab, setActiveTab] = useState<LunchTab>('All');
  const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
+   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu'); // Track current view
+ 
     const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   
 
   const tabs: LunchTab[] = ['All', 'Main Course', 'Starters' , 'Rice' ,'Bestseller' , 'Beverages' , 'Dessert'];
+
+    const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
+    setCurrentView(view);
+  };
 
 
   const handleAddToOrder = (item: LunchItem | BreakfastItem) => {
@@ -113,7 +119,7 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
  onAddToOrder={handleAddToOrder} />
       </div>
 
-      <BottomNav />
+      <BottomNav activeView={currentView} onViewChange={handleNavChange} />
     </div>
   );
 };
