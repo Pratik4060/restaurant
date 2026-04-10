@@ -7,6 +7,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image?: string;
+  description?: string;
 }
 
 interface OrderContextType {
@@ -17,6 +18,7 @@ interface OrderContextType {
   clearOrder: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
+  getItemQuantity: (id: number) => number;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -34,20 +36,24 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             : i
         );
       }
-      return [...prev, item];
+      return [...prev, { ...item, quantity: item.quantity }];
     });
   };
 
   const updateQuantity = (id: number, quantity: number) => {
-    setOrderItems(prev => 
-      quantity === 0 
-        ? prev.filter(i => i.id !== id)
-        : prev.map(i => i.id === id ? { ...i, quantity } : i)
+    if (quantity <= 0) {
+      removeItem(id);
+      return;
+    }
+    setOrderItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, quantity } : item
+      )
     );
   };
 
   const removeItem = (id: number) => {
-    setOrderItems(prev => prev.filter(i => i.id !== id));
+    setOrderItems(prev => prev.filter(item => item.id !== id));
   };
 
   const clearOrder = () => setOrderItems([]);
@@ -60,6 +66,11 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return orderItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const getItemQuantity = (id: number) => {
+    const item = orderItems.find(i => i.id === id);
+    return item?.quantity || 0;
+  };
+
   return (
     <OrderContext.Provider value={{
       orderItems,
@@ -68,7 +79,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       removeItem,
       clearOrder,
       getTotalPrice,
-      getTotalItems
+      getTotalItems,
+      getItemQuantity
     }}>
       {children}
     </OrderContext.Provider>

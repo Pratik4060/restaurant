@@ -1,14 +1,21 @@
+// components/Breakfast/BreakfastList.tsx
 import React, { useMemo } from 'react';
 import { BreakfastItems, type BeverageTab, type HealthTab, type BreakfastTab, type BreakfastItem } from './Data';
 import MenuCard from '../MenuCard';
+
 interface Props {
   activeTab: BreakfastTab;
   activeBeverageTab: BeverageTab;
   activeHealthTab: HealthTab;
-  onAddToOrder: (item: BreakfastItem) => void;
+  onItemClick?: (item: BreakfastItem) => void;
 }
 
-const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder, activeBeverageTab, activeHealthTab }) => {
+const MenuList: React.FC<Props> = ({ 
+  activeTab, 
+  activeBeverageTab, 
+  activeHealthTab,
+  onItemClick
+}) => {
   const filteredItems = useMemo(() => {
     if (activeTab === 'All') {
       return BreakfastItems;
@@ -29,11 +36,7 @@ const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder, activeBeverageTab,
     if (activeTab === 'Health') {
       const healthItems = BreakfastItems.filter(item => item.category === 'Health');
       return healthItems.filter(item => item.subCategory === activeHealthTab);
-
     }
-
-
-
 
     return BreakfastItems.filter(item => item.category === activeTab);
   }, [activeTab, activeBeverageTab, activeHealthTab]);
@@ -52,7 +55,7 @@ const MenuList: React.FC<Props> = ({ activeTab, onAddToOrder, activeBeverageTab,
         <MenuCard
           key={item.id}
           item={item}
-          onAddToOrder={onAddToOrder}
+          onItemClick={onItemClick}
         />
       ))}
     </div>

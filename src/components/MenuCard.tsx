@@ -13,19 +13,17 @@ interface MenuCardItem {
 
 interface Props<T extends MenuCardItem> {
   item: T;
-   onAddToOrder: (item: T) => void;
-
+  onItemClick?: (item: T) => void;
 }
 
-const MenuCard = <T extends MenuCardItem,>({ item }: Props<T>) => {
-  const { addToOrder, updateQuantity, orderItems } = useOrder();
+const MenuCard = <T extends MenuCardItem,>({ item, onItemClick }: Props<T>) => {
+  const { addToOrder, updateQuantity, getItemQuantity } = useOrder();
   
-  // Get current quantity from global order state
-  const currentItem = orderItems.find(i => i.id === item.id);
-  const quantity = currentItem?.quantity || 0;
+  const quantity = getItemQuantity(item.id);
   const isAdded = quantity > 0;
 
-  const handleAddToOrder = () => {
+  const handleAddToOrder = (e: React.MouseEvent) => {
+    e.stopPropagation();
     addToOrder({
       id: item.id,
       name: item.name,
@@ -35,16 +33,21 @@ const MenuCard = <T extends MenuCardItem,>({ item }: Props<T>) => {
     });
   };
 
-  const increment = () => {
+  const increment = (e: React.MouseEvent) => {
+    e.stopPropagation();
     updateQuantity(item.id, quantity + 1);
   };
 
-  const decrement = () => {
+  const decrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
     updateQuantity(item.id, quantity - 1);
   };
 
   return (
-    <div className="montserrat flex gap-3 rounded-xl bg-[#F7F7F7] border border-[#C9C9C9] overflow-hidden min-h-[130px]">
+    <div 
+      className="montserrat flex gap-3 rounded-xl bg-[#F7F7F7] border border-[#C9C9C9] overflow-hidden min-h-[130px] cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => onItemClick && onItemClick(item)}
+    >
       {/* Image section */}
       <div className="flex-shrink-0 p-3">
         <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100">
@@ -77,13 +80,16 @@ const MenuCard = <T extends MenuCardItem,>({ item }: Props<T>) => {
           {!isAdded ? (
             <button 
               onClick={handleAddToOrder}
-              className="bg-black text-white px-3 py-1.5 rounded-md text-[10px] flex items-center gap-1.5"
+              className="bg-black text-white px-3 py-1.5 rounded-md text-[10px] flex items-center gap-1.5 hover:bg-gray-800 transition-colors"
             >
               Add To Order
               <img src={order} alt='order' className='h-3 w-3' />
             </button>
           ) : (
-            <div className="flex items-center gap-2 bg-black rounded-md px-2 py-1">
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 bg-black rounded-md px-2 py-1"
+            >
               <button 
                 onClick={decrement}
                 className="text-white text-base font-bold w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded"

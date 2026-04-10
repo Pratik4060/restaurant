@@ -1,10 +1,12 @@
-// BreakfastDetails.tsx or LunchMenuDetails.tsx
+// BreakfastDetails.tsx (Complete updated version)
 import React, { useState } from 'react';
 import { useOrder } from '../contexts/OrderContext';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuList from '../components/Breakfast/BreakfastList';
 import BottomNav from '../components/BottomNav';
 import OrderPage from './OrdersPage';
+import ItemDetailPage from '../components/ItemDetailsPage';
+import TrackOrderPage from './OrderTrackingPage';
 import type { BeverageTab, HealthTab, BreakfastTab, BreakfastItem } from '../components/Breakfast/Data';
 import bell from '../assets/bell.svg'
 import back from "../assets/back.svg"
@@ -19,18 +21,21 @@ interface Props {
 }
 
 const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
-  const { getTotalItems, addToOrder } = useOrder(); // Make sure to get addToOrder
+  const { getTotalItems, addToOrder, clearOrder } = useOrder();
   const [activeTab, setActiveTab] = useState<BreakfastTab>('All');
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
-  const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu'); // Track current view
+  const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu');
+  const [selectedItem, setSelectedItem] = useState<BreakfastItem | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string>('');
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
   
   const displayName = userName.trim() || 'Rohit';
   const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   const healthTabs: HealthTab[] = ['Veg', 'Non Veg'];
 
   const handleAddToOrder = (item: BreakfastItem) => {
-    // Convert BreakfastItem to OrderItem format and add to context
     const orderItem = {
       id: item.id,
       name: item.name,
@@ -41,23 +46,86 @@ const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
     addToOrder(orderItem);
     console.log('Added to order:', orderItem);
   };
-
-  // Handle bottom nav clicks
-  const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
-    setCurrentView(view);
+ 
+  const handleItemClick = (item: BreakfastItem) => {
+    setSelectedItem(item);
   };
+
+const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
+  if (view === 'track' && !orderPlaced) {
+    setCurrentView('track');
+    return;
+  }
+  setCurrentView(view);
+  setSelectedItem(null);
+};
+
+const handleConfirmOrder = () => {
+  const newOrderNumber = Math.floor(Math.random() * 1000).toString();
+  setOrderNumber(newOrderNumber);
+  setOrderPlaced(true);
+  setCurrentView('track');
+};
+
+  const handleTrackingFromDetail = () => {
+    // Generate order number and navigate to tracking from detail page
+    const newOrderNumber = Math.floor(Math.random() * 1000).toString();
+    setOrderNumber(newOrderNumber);
+    setSelectedItem(null);
+    setCurrentView('track');
+  };
+
+  // Show Item Detail Page when an item is selected
+  if (selectedItem) {
+    return (
+      <ItemDetailPage
+        item={{
+          id: selectedItem.id,
+          name: selectedItem.name,
+          price: selectedItem.price,
+          rating: selectedItem.rating || 4.5,
+          description: selectedItem.description || "Delicious item prepared with fresh ingredients.",
+          time: selectedItem.time || "15-20 Min",
+          image: selectedItem.image,
+          isVeg: selectedItem.isVeg
+        }}
+        onBack={() => setSelectedItem(null)}
+        onNavigateToMenu={() => {
+          setSelectedItem(null);
+          setCurrentView('menu');
+        }}
+        onNavigateToOrders={() => {
+          setSelectedItem(null);
+          setCurrentView('orders');
+        }}
+        onNavigateToTracking={handleTrackingFromDetail}
+      />
+    );
+  }
 
   // Show Order Page when 'orders' is active
   if (currentView === 'orders') {
     return (
-      <OrderPage 
-        onBack={() => setCurrentView('menu')}
-        onConfirmOrder={() => {
-          console.log('Order confirmed!');
-          // You can add logic here to submit the order to backend
-          setCurrentView('menu'); // Go back to menu after confirmation
-        }}
-      />
+<OrderPage 
+  onBack={() => setCurrentView('menu')}
+  onConfirmOrder={handleConfirmOrder}
+  onViewChange={handleNavChange}
+/>
+    );
+  }
+
+  // Show Track Order Page when 'track' is active
+  if (currentView === 'track') {
+    return (
+<TrackOrderPage 
+  onBack={() => {
+    clearOrder();
+    setCurrentView('menu');
+  }}
+  onViewChange={handleNavChange}
+  orderNumber={orderNumber}
+  estimatedTime="15-20"
+/>
     );
   }
 
@@ -69,7 +137,6 @@ const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
           <img src={back} alt="back" />
         </button>
         <div className="flex gap-3">
-          {/* Cart indicator */}
           <div className="relative">
             <button className="text-xl">🛒</button>
             {getTotalItems() > 0 && (
@@ -90,14 +157,12 @@ const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
         </h1>
       </div>
 
-      {/* Greeting */}
       <div className="px-5 pt-4">
         <h3>
           <span className="font-semibold">Hi, {displayName}</span> Start your day fresh
         </h3>        
       </div>
 
-      {/* Search Bar */}
       <div className="px-5 py-3">
         <div className="relative w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -114,7 +179,6 @@ const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
         </div>
       </div>
 
-      {/* Category Tabs */}
       <CategoryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === 'Beverages' && (
@@ -153,17 +217,16 @@ const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
         </div>
       )}
       
-      {/* Menu List */}
       <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
         <MenuList 
           activeTab={activeTab} 
           activeBeverageTab={activeBeverageTab} 
           activeHealthTab={activeHealthTab}
-          onAddToOrder={handleAddToOrder} 
+          onAddToOrder={handleAddToOrder}
+          onItemClick={handleItemClick}
         />
       </div>
 
-      {/* Bottom Navigation - Pass the handler */}
       <BottomNav activeView={currentView} onViewChange={handleNavChange} />
     </div>
   );
