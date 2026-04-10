@@ -1,13 +1,13 @@
 import React from 'react';
-import type { MainTab } from './Breakfast/Data';
+import  type { BreakfastTab } from './Breakfast/Data';
 
 interface Props {
-  activeTab: MainTab;
-  onTabChange: (tab: MainTab) => void;
+  activeTab: BreakfastTab;
+  onTabChange: (tab: BreakfastTab) => void;
 }
 
 const CategoryTabs: React.FC<Props> = ({ activeTab, onTabChange }) => {
-  const tabs: MainTab[] = ['All', 'Bestseller', 'Beverages', 'Health', 'Quick Bites'];
+  const tabs: BreakfastTab[] = ['All', 'Bestseller', 'Beverages', 'Health', 'Quick Bites'];
 
   return (
     <div className="px-5">
