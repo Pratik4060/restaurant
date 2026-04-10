@@ -1,5 +1,4 @@
 // MenuCard.tsx
-import React, { useState } from 'react';
 import { useOrder } from '../contexts/OrderContext';
 import order from '../assets/order.svg';
 import Ruppes from '../assets/Ruppes.svg';
@@ -14,6 +13,8 @@ interface MenuCardItem {
 
 interface Props<T extends MenuCardItem> {
   item: T;
+   onAddToOrder: (item: T) => void;
+
 }
 
 const MenuCard = <T extends MenuCardItem,>({ item }: Props<T>) => {
