@@ -21,4 +21,5 @@ export interface BreakfastItem {
   category: BreakfastTab;
   subCategory?: SubCategory;
   isBestseller?: boolean;
+  foodType?: "Veg" | "Non Veg";
 }

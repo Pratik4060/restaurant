@@ -1,40 +1,186 @@
-import React, { useState } from 'react';
-import type { MealCategory } from '../types';
-import BottomNav from '../components/BottomNav';
-import type { LunchItem, LunchTab } from '../components/Lunch/Data';
-import type { BeverageTab } from '../components/Breakfast/Data';
-import type { BreakfastItem } from '../components/Breakfast/Data';
-import bell from '../assets/bell.svg';
-import back from '../assets/back.svg';
-import search from '../assets/search.svg';
-import microphone from '../assets/microphone.svg';
-import LunchList from '../components/Lunch/LunchList';
-
+import React, { useEffect, useState } from "react";
+import { useOrder } from "../contexts/OrderContext";
+import type { MealCategory } from "../types";
+import BottomNav from "../components/BottomNav";
+import type { LunchItem, LunchTab } from "../components/Lunch/Data";
+import type { BeverageTab } from "../components/Breakfast/Data";
+import type { BreakfastItem } from "../components/Breakfast/Data";
+import bell from "../assets/bell.svg";
+import back from "../assets/back.svg";
+import search from "../assets/search.svg";
+import microphone from "../assets/microphone.svg";
+import LunchList from "../components/Lunch/LunchList";
+import OrderPage from "./OrdersPage";
+import ItemDetailPage from "../components/ItemDetailsPage";
+import TrackOrderPage from "./OrderTrackingPage";
+import BillPage from "./BillPage";
+import type { FoodType } from "../types";
 interface Props {
   category: MealCategory;
   userName: string;
-  onBack: () => void;
+  foodType: FoodType;
+    onBack: () => void;
 }
 
-const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
-  const displayName = userName.trim() || 'Rohit';
-  const [activeTab, setActiveTab] = useState<LunchTab>('All');
- const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
-   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu'); // Track current view
- 
-    const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
-  
+const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack ,foodType}) => {
+  const { addToOrder, orderPlaced, orderNumber, placeOrder } =
+    useOrder();
 
-  const tabs: LunchTab[] = ['All', 'Main Course', 'Starters' , 'Rice' ,'Bestseller' , 'Beverages' , 'Dessert'];
+  const displayName = userName.trim() || "Rohit";
+  const [activeTab, setActiveTab] = useState<LunchTab>("All");
+  const [activeBeverageTab, setActiveBeverageTab] =
+    useState<BeverageTab>("All");
+  const [currentView, setCurrentView] = useState<
+    "menu" | "orders" | "track" | "bill"
+  >("menu");
+  const [selectedItem, setSelectedItem] = useState<
+    LunchItem | BreakfastItem | null
+  >(null);
 
-    const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
+  const beverageTabs: BeverageTab[] = [
+    "All",
+    "Mocktails",
+    "Cocktails",
+    "Spirits",
+    "Beer",
+    "Wine",
+    "Hot Beverages",
+    "Fresh Juice",
+  ];
+
+const vegTabs: LunchTab[] = [
+  "All",
+  "Main Course",
+  "Starters",
+  "Rice",
+  "Bestseller",
+  "Beverages",
+  "Dessert",
+];
+
+const nonVegTabs: LunchTab[] = [
+  "All",
+  "Main Course",
+  "Starters",
+  "Appetizer",
+  "Rice",
+  "Bestseller",
+  "Beverages",
+  "Dessert",
+];
+
+const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
+
+  useEffect(() => {
+    if (foodType === "Veg" && activeTab === "Appetizer") {
+      setActiveTab("All");
+    }
+  }, [activeTab, foodType]);
+
+  const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
+    if (view === "track" && !orderPlaced) {
+      setCurrentView("track");
+      return;
+    }
+
+    if (view === "bill" && !orderPlaced) {
+      setCurrentView("bill");
+      return;
+    }
+
     setCurrentView(view);
+    setSelectedItem(null);
   };
-
 
   const handleAddToOrder = (item: LunchItem | BreakfastItem) => {
-    console.log('Added to order:', item);
+    const orderItem = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      image: item.image || "",
+    };
+
+    addToOrder(orderItem);
   };
+
+  const handleItemClick = (item: LunchItem | BreakfastItem) => {
+    setSelectedItem(item);
+  };
+
+  const handleConfirmOrder = () => {
+    placeOrder();
+    setCurrentView("track");
+  };
+
+  const handleTrackingFromDetail = () => {
+    placeOrder();
+    setSelectedItem(null);
+    setCurrentView("track");
+  };
+
+  if (selectedItem) {
+    return (
+      <ItemDetailPage
+        item={{
+          id: selectedItem.id,
+          name: selectedItem.name,
+          price: selectedItem.price,
+          rating: 4.5,
+          description:
+            selectedItem.description ||
+            "Delicious item prepared with fresh ingredients.",
+          time: "15-20 Min",
+          image: selectedItem.image,
+        }}
+        onBack={() => setSelectedItem(null)}
+        onNavigateToMenu={() => {
+          setSelectedItem(null);
+          setCurrentView("menu");
+        }}
+        onNavigateToOrders={() => {
+          setSelectedItem(null);
+          setCurrentView("orders");
+        }}
+        onNavigateToTracking={handleTrackingFromDetail}
+      />
+    );
+  }
+
+  if (currentView === "orders") {
+    return (
+      <OrderPage
+        onBack={() => setCurrentView("menu")}
+        onConfirmOrder={handleConfirmOrder}
+        onViewChange={handleNavChange}
+      />
+    );
+  }
+
+  if (currentView === "track") {
+    return (
+      <TrackOrderPage
+        onBack={() => setCurrentView("menu")}
+        onViewChange={handleNavChange}
+        orderPlaced={orderPlaced}
+        orderNumber={orderNumber}
+        estimatedTime="15-20"
+        onReadyComplete={() => setCurrentView("bill")}
+      />
+    );
+  }
+
+  if (currentView === "bill") {
+    return (
+      <BillPage
+        onBack={() => setCurrentView("menu")}
+        onViewChange={handleNavChange}
+        orderPlaced={orderPlaced}
+        tableNumber="12"
+        orderNumber={orderNumber || "1234"}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -55,7 +201,10 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
 
       <div className="px-5 pt-4">
         <h3>
-          <span className="font-semibold">Hi {displayName},</span> Time for a delicious lunch
+          <span className="font-semibold">Hi {displayName},</span>{" "}
+          {category === "Dinner"
+            ? "Time for a delicious dinner"
+            : "Time for a delicious lunch"}
         </h3>
       </div>
 
@@ -85,8 +234,8 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
               onClick={() => setActiveTab(tab)}
               className={`text-[14px] whitespace-nowrap transition-all pb-1 ${
                 activeTab === tab
-                  ? 'font-semibold border-b-2 border-black text-black'
-                  : 'text-gray-500'
+                  ? "font-semibold border-b-2 border-black text-black"
+                  : "text-gray-500"
               }`}
             >
               {tab}
@@ -95,16 +244,16 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
         </div>
       </div>
 
-      {activeTab === 'Beverages' && (
-        <div className=" montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
+      {activeTab === "Beverages" && (
+        <div className="montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
           {beverageTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveBeverageTab(tab as BeverageTab)}
               className={`pb-1 whitespace-nowrap ${
                 activeBeverageTab === tab
-                  ? 'font-semibold border-b-2 border-black text-black'
-                  : 'text-gray-500'
+                  ? "font-semibold border-b-2 border-black text-black"
+                  : "text-gray-500"
               }`}
             >
               {tab}
@@ -112,11 +261,15 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack }) => {
           ))}
         </div>
       )}
-      
 
       <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
-        <LunchList activeTab={activeTab} activeBeverageTab={activeBeverageTab}
- onAddToOrder={handleAddToOrder} />
+        <LunchList
+          activeTab={activeTab}
+          activeBeverageTab={activeBeverageTab}
+          foodType={foodType}
+          onAddToOrder={handleAddToOrder}
+          onItemClick={handleItemClick}
+        />
       </div>
 
       <BottomNav activeView={currentView} onViewChange={handleNavChange} />

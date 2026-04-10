@@ -10,10 +10,15 @@ import sandwhich from "../assets/sandwhich.svg"
 import bite from "../assets/bite.svg"
 import combo from "../assets/combo.svg"
 import freeadd from "../assets/freeadd.svg"
-import type { MealCategory, UserData } from "../types";
+import nonevegBreakfast from "../assets/Breakfast/Non-veg/Breakfast.svg"
+import Lunch from "../assets/Breakfast/Non-veg/Lunch.svg"
+import Dinner from "../assets/Breakfast/Non-veg/Dinner.svg"
+import type { FoodType, MealCategory, UserData } from "../types";
 
 interface HomePageProps {
   user: UserData;
+  foodType: FoodType;
+  onFoodTypeChange: (type: FoodType) => void;
   onSelect: (cat: MealCategory) => void;
 }
 
@@ -45,17 +50,57 @@ const OFFERS = [
   },
   ];
 
-  const MEAL_DATA: { category: MealCategory; img: string; background: string }[] = [
-  { category: "Breakfast", img: Breakfast, background:"linear-gradient(160.72deg, rgba(184, 194, 177, 0.2) 31.81%, rgba(59, 105, 6, 0.2) 62.84%, rgba(181, 113, 22, 0.2) 95.75%)"},
-  { category: "Lunch", img: lunch,  background: "linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)" },
-  { category: "Dinner", img: Dinner1, background: "linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)" },
+  const VEG_MEAL_DATA: {
+    category: MealCategory;
+    img: string;
+    background: string;
+  }[] = [
+    {
+      category: "Breakfast",
+      img: Breakfast,
+      background:
+        "linear-gradient(160.72deg, rgba(184, 194, 177, 0.2) 31.81%, rgba(59, 105, 6, 0.2) 62.84%, rgba(181, 113, 22, 0.2) 95.75%)",
+    },
+    {
+      category: "Lunch",
+      img: lunch,
+      background: "linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)",
+    },
+    {
+      category: "Dinner",
+      img: Dinner1,
+      background: "linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)",
+    },
+  ];
+const NON_VEG_MEAL_DATA: {
+  category: MealCategory;
+  img: string;
+  background: string;
+}[] = [
+  {
+    category: "Breakfast",
+    img: nonevegBreakfast,
+background: 'linear-gradient(  160.72deg, rgba(184, 194, 177, 0.2), rgba(255, 255, 255, 1))'
+},
+  {
+    category: "Lunch",
+    img: Lunch,
+    background: "linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)",
+  },
+  {
+    category: "Dinner",
+    img: Dinner,
+    background: "linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)",
+  },
 ];
 
-
-const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
-  const [foodType, setFoodType] = useState<"Veg" | "Non Veg">("Veg");
+const HomePage: React.FC<HomePageProps> = ({
+  user: _user,
+  foodType,
+  onFoodTypeChange,
+  onSelect,
+}) => {
   const [currentOffer, setCurrentOffer] = useState(0);
-
 
   const getInitialMealIndex = () => {
     const hour = new Date().getHours();
@@ -63,7 +108,13 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
     if (hour >= 12 && hour < 17) return 1; // Lunch
     return 2; // Dinner
   };
-  const[currentMealIdx , setCurrentMealIdx] = useState(getInitialMealIndex());
+
+    const [currentMealIdx, setCurrentMealIdx] = useState(getInitialMealIndex());
+
+    const activeMealData =
+      foodType === "Veg" ? VEG_MEAL_DATA : NON_VEG_MEAL_DATA;
+    const currentMeal = activeMealData[currentMealIdx];
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -72,14 +123,18 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect (() =>{
-    const timer  = setInterval(() =>{
-      setCurrentMealIdx((prev) => (prev+1) % MEAL_DATA.length)
-    },5000);
-    return () => clearInterval(timer)
-  },[]);
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentMealIdx((prev) => (prev + 1) % activeMealData.length);
+  }, 5000);
 
-  const currentMeal =MEAL_DATA[currentMealIdx];
+  return () => clearInterval(timer);
+}, [activeMealData.length]);
+
+  useEffect(() => {
+    setCurrentMealIdx(0);
+  }, [foodType]);
+
 
 
 
@@ -183,12 +238,12 @@ const HomePage: React.FC<HomePageProps> = ({ user: _user, onSelect }) => {
         {/* Toggle Controls */}
         <div className="mb-8 flex items-center justify-between">
           <div className="flex gap-6">
-            <button onClick={() => setFoodType("Veg")} className="flex items-center gap-2 text-sm font-medium ">
+            <button onClick={() => onFoodTypeChange("Veg")} className="flex items-center gap-2 text-sm font-medium ">
               <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${foodType === 'Veg' ? 'border-green-500' : 'border-gray-300'}`}>
                 {foodType === 'Veg' && <div className="h-2.5 w-2.5 rounded-full bg-green-500" />}
               </div> Veg
             </button>
-            <button onClick={() => setFoodType("Non Veg")} className="flex items-center gap-2 text-sm font-medium">
+            <button onClick={() => onFoodTypeChange("Non Veg")} className="flex items-center gap-2 text-sm font-medium">
               <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center bg-white ${foodType === 'Non Veg' ? 'border-red-500' : 'border-gray-300'}`}>
                 {foodType === 'Non Veg' && <div className="h-2.5 w-2.5 rounded-full bg-red-500" />}
               </div> Non Veg

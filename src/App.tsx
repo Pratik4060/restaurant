@@ -4,10 +4,12 @@ import LoadingAnim from './pages/LoadingAnim';
 import DetailsForm from './pages/DetailsForm';
 import Home from './pages/HomePage';
 import BreakfastDetails from './pages/BreakfastDetails';
-import type{ AppStep, UserData, MealCategory } from './types';
+import type{ AppStep, UserData, MealCategory, FoodType } from './types';
 import LunchMenuDetails from './pages/LunchMenuDetails';
+import { useOrder } from './contexts/OrderContext';
 
 const App: React.FC = () => {
+  const { clearOrder, resetPlacedOrder } = useOrder();
   const [step, setStep] = useState<AppStep>('scanner');
   const [userData, setUserData] = useState<UserData>({
     name: '',
@@ -16,6 +18,7 @@ const App: React.FC = () => {
     table: '12'
   });
   const [selectedCategory, setSelectedCategory] = useState<MealCategory>('Breakfast');
+const [selectedFoodType, setSelectedFoodType] = useState<FoodType>("Veg");
 
   const onScanSuccess = (): void => setStep('loading');
 
@@ -33,30 +36,39 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full">
-      {step === 'scanner' && <QRScanner onScan={onScanSuccess} />}
-      {step === 'loading' && <LoadingAnim />}
-      {step === 'form' && <DetailsForm onSubmit={handleFormSubmit} />}
-      {step === 'home' && (
-        <Home 
-          user={userData} 
-          onSelect={(cat: MealCategory) => { 
-            setSelectedCategory(cat); 
-            setStep('menu'); 
-          }} 
+      {step === "scanner" && <QRScanner onScan={onScanSuccess} />}
+      {step === "loading" && <LoadingAnim />}
+      {step === "form" && <DetailsForm onSubmit={handleFormSubmit} />}
+      {step === "home" && (
+        <Home
+          user={userData}
+          foodType={selectedFoodType}
+          onFoodTypeChange={setSelectedFoodType}
+          onSelect={(cat: MealCategory) => {
+            clearOrder();
+            resetPlacedOrder();
+            setSelectedCategory(cat);
+            setStep("menu");
+          }}
         />
       )}
-      {step === 'menu' && selectedCategory === 'Breakfast' && (
-        <BreakfastDetails 
-          category={selectedCategory} 
+      {step === "menu" && selectedCategory === "Breakfast" && (
+        <BreakfastDetails
+          key={`${selectedCategory}-${selectedFoodType}`}
+          category={selectedCategory}
           userName={userData.name}
-          onBack={() => setStep('home')} 
+          foodType={selectedFoodType}
+          onBack={() => setStep("home")}
         />
       )}
-      { step === 'menu' && selectedCategory === 'Lunch' && (
-          <LunchMenuDetails 
-           category={selectedCategory}
-           userName={userData.name}
-          onBack={() => setStep('home')} 
+      {step === "menu" &&
+        (selectedCategory === "Lunch" || selectedCategory === "Dinner") && (
+          <LunchMenuDetails
+            key={`${selectedCategory}-${selectedFoodType}`}
+            category={selectedCategory}
+            userName={userData.name}
+            foodType={selectedFoodType}
+            onBack={() => setStep("home")}
           />
         )}
     </div>

@@ -1,4 +1,13 @@
-export type LunchTab = 'All'| 'Main Course'| 'Starters' | 'Rice' |'Bestseller' | 'Beverages' | 'Dessert';
+export type LunchTab =
+  | "All"
+  | "Main Course"
+  | 'Appetizer'
+  | "Roti"
+  | "Starters"
+  | "Rice"
+  | "Bestseller"
+  | "Beverages"
+  | "Dessert";
 export type BeverageTab =
   | 'All'
   | 'Mocktails'
@@ -20,4 +29,5 @@ export interface LunchItem {
   category: LunchTab;
   subCategory?: SubCategory;
   isBestseller?: boolean;
+  foodType?: "Veg" | "Non Veg";
 }

@@ -13,40 +13,28 @@ import back from "../assets/back.svg"
 import search from "../assets/search.svg"
 import microphone from "../assets/microphone.svg"
 import type { MealCategory } from '../types';
+import BillPage from "./BillPage";
 
-interface Props { 
-  category: MealCategory; 
+interface Props {
+  category: MealCategory;
   userName: string;
-  onBack: () => void; 
+  foodType: "Veg" | "Non Veg";
+  onBack: () => void;
 }
 
-const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack }) => {
-  const { getTotalItems, addToOrder, clearOrder } = useOrder();
+const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType }) => {
+const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [activeTab, setActiveTab] = useState<BreakfastTab>('All');
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu');
   const [selectedItem, setSelectedItem] = useState<BreakfastItem | null>(null);
-  const [orderNumber, setOrderNumber] = useState<string>('');
-  const [orderPlaced, setOrderPlaced] = useState(false);
 
   
   const displayName = userName.trim() || 'Rohit';
   const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   const healthTabs: HealthTab[] = ['Veg', 'Non Veg'];
 
-  const handleAddToOrder = (item: BreakfastItem) => {
-    const orderItem = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image || ''
-    };
-    addToOrder(orderItem);
-    console.log('Added to order:', orderItem);
-  };
- 
   const handleItemClick = (item: BreakfastItem) => {
     setSelectedItem(item);
   };
@@ -61,19 +49,15 @@ const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
 };
 
 const handleConfirmOrder = () => {
-  const newOrderNumber = Math.floor(Math.random() * 1000).toString();
-  setOrderNumber(newOrderNumber);
-  setOrderPlaced(true);
-  setCurrentView('track');
+  placeOrder();
+  setCurrentView("track");
 };
 
-  const handleTrackingFromDetail = () => {
-    // Generate order number and navigate to tracking from detail page
-    const newOrderNumber = Math.floor(Math.random() * 1000).toString();
-    setOrderNumber(newOrderNumber);
-    setSelectedItem(null);
-    setCurrentView('track');
-  };
+const handleTrackingFromDetail = () => {
+  placeOrder();
+  setSelectedItem(null);
+  setCurrentView("track");
+};
 
   // Show Item Detail Page when an item is selected
   if (selectedItem) {
@@ -83,11 +67,11 @@ const handleConfirmOrder = () => {
           id: selectedItem.id,
           name: selectedItem.name,
           price: selectedItem.price,
-          rating: selectedItem.rating || 4.5,
+          rating: 4.5,
           description: selectedItem.description || "Delicious item prepared with fresh ingredients.",
-          time: selectedItem.time || "15-20 Min",
+          time: "15-20 Min",
           image: selectedItem.image,
-          isVeg: selectedItem.isVeg
+          isVeg: foodType === "Veg"
         }}
         onBack={() => setSelectedItem(null)}
         onNavigateToMenu={() => {
@@ -115,19 +99,32 @@ const handleConfirmOrder = () => {
   }
 
   // Show Track Order Page when 'track' is active
-  if (currentView === 'track') {
-    return (
-<TrackOrderPage 
-  onBack={() => {
-    clearOrder();
-    setCurrentView('menu');
-  }}
-  onViewChange={handleNavChange}
-  orderNumber={orderNumber}
-  estimatedTime="15-20"
-/>
-    );
-  }
+if (currentView === "track") {
+  return (
+    <TrackOrderPage
+      onBack={() => setCurrentView("menu")}
+      onViewChange={handleNavChange}
+      orderPlaced={orderPlaced}
+      orderNumber={orderNumber}
+      estimatedTime="15-20"
+      onReadyComplete={() => setCurrentView("bill")}
+    />
+  );
+}
+
+
+if (currentView === "bill") {
+  return (
+    <BillPage
+      onBack={() => setCurrentView("menu")}
+      onViewChange={handleNavChange}
+      orderPlaced={orderPlaced}
+      tableNumber="12"
+      orderNumber={orderNumber || "1234"}
+    />
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -137,16 +134,8 @@ const handleConfirmOrder = () => {
           <img src={back} alt="back" />
         </button>
         <div className="flex gap-3">
-          <div className="relative">
-            <button className="text-xl">🛒</button>
-            {getTotalItems() > 0 && (
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {getTotalItems()}
-              </span>
-            )}
-          </div>
           <button>
-            <img src={bell} className='invert h-8' alt="bell" />
+            <img src={bell} className="invert h-8" alt="bell" />
           </button>
         </div>
       </div>
@@ -159,8 +148,9 @@ const handleConfirmOrder = () => {
 
       <div className="px-5 pt-4">
         <h3>
-          <span className="font-semibold">Hi, {displayName}</span> Start your day fresh
-        </h3>        
+          <span className="font-semibold">Hi, {displayName}</span> Start your
+          day fresh
+        </h3>
       </div>
 
       <div className="px-5 py-3">
@@ -181,7 +171,7 @@ const handleConfirmOrder = () => {
 
       <CategoryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {activeTab === 'Beverages' && (
+      {activeTab === "Beverages" && (
         <div className="montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
           {beverageTabs.map((tab) => (
             <button
@@ -189,8 +179,8 @@ const handleConfirmOrder = () => {
               onClick={() => setActiveBeverageTab(tab as BeverageTab)}
               className={`pb-1 whitespace-nowrap ${
                 activeBeverageTab === tab
-                  ? 'font-semibold border-b-2 border-black text-black'
-                  : 'text-gray-500'
+                  ? "font-semibold border-b-2 border-black text-black"
+                  : "text-gray-500"
               }`}
             >
               {tab}
@@ -199,7 +189,7 @@ const handleConfirmOrder = () => {
         </div>
       )}
 
-      {activeTab === 'Health' && (
+      {activeTab === "Health" && (
         <div className="montserrat px-7 mt-3 flex gap-10 overflow-x-auto scrollbar-hide">
           {healthTabs.map((tab) => (
             <button
@@ -207,8 +197,8 @@ const handleConfirmOrder = () => {
               onClick={() => setActiveHealthTab(tab as HealthTab)}
               className={`pb-1 whitespace-nowrap ${
                 activeHealthTab === tab
-                  ? 'font-semibold border-b-2 border-black text-black'
-                  : 'text-gray-500'
+                  ? "font-semibold border-b-2 border-black text-black"
+                  : "text-gray-500"
               }`}
             >
               {tab}
@@ -216,13 +206,13 @@ const handleConfirmOrder = () => {
           ))}
         </div>
       )}
-      
+
       <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
-        <MenuList 
-          activeTab={activeTab} 
-          activeBeverageTab={activeBeverageTab} 
+        <MenuList
+          activeTab={activeTab}
+          activeBeverageTab={activeBeverageTab}
           activeHealthTab={activeHealthTab}
-          onAddToOrder={handleAddToOrder}
+          foodType={foodType}
           onItemClick={handleItemClick}
         />
       </div>

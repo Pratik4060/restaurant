@@ -6,5 +6,6 @@ export interface UserData {
   guests: string;
   table: string;
 }
+export type FoodType = "Veg" | "Non Veg";
 
 export type MealCategory = 'Breakfast' | 'Lunch' | 'Dinner';

@@ -1,5 +1,9 @@
-// contexts/OrderContext.tsx
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
 
 export interface OrderItem {
   id: number;
@@ -12,10 +16,14 @@ export interface OrderItem {
 
 interface OrderContextType {
   orderItems: OrderItem[];
+  orderPlaced: boolean;
+  orderNumber: string;
   addToOrder: (item: OrderItem) => void;
   updateQuantity: (id: number, quantity: number) => void;
   removeItem: (id: number) => void;
   clearOrder: () => void;
+  placeOrder: () => string;
+  resetPlacedOrder: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
   getItemQuantity: (id: number) => number;
@@ -23,17 +31,19 @@ interface OrderContextType {
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const OrderProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
 
   const addToOrder = (item: OrderItem) => {
-    setOrderItems(prev => {
-      const existingItem = prev.find(i => i.id === item.id);
+    setOrderItems((prev) => {
+      const existingItem = prev.find((i) => i.id === item.id);
       if (existingItem) {
-        return prev.map(i => 
-          i.id === item.id 
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i,
         );
       }
       return [...prev, { ...item, quantity: item.quantity }];
@@ -45,21 +55,35 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       removeItem(id);
       return;
     }
-    setOrderItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
+
+    setOrderItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
     );
   };
 
   const removeItem = (id: number) => {
-    setOrderItems(prev => prev.filter(item => item.id !== id));
+    setOrderItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const clearOrder = () => setOrderItems([]);
 
+  const placeOrder = () => {
+    const newOrderNumber = Math.floor(Math.random() * 1000).toString();
+    setOrderNumber(newOrderNumber);
+    setOrderPlaced(true);
+    return newOrderNumber;
+  };
+
+  const resetPlacedOrder = () => {
+    setOrderPlaced(false);
+    setOrderNumber("");
+  };
+
   const getTotalPrice = () => {
-    return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return orderItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0,
+    );
   };
 
   const getTotalItems = () => {
@@ -67,21 +91,27 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const getItemQuantity = (id: number) => {
-    const item = orderItems.find(i => i.id === id);
+    const item = orderItems.find((i) => i.id === id);
     return item?.quantity || 0;
   };
 
   return (
-    <OrderContext.Provider value={{
-      orderItems,
-      addToOrder,
-      updateQuantity,
-      removeItem,
-      clearOrder,
-      getTotalPrice,
-      getTotalItems,
-      getItemQuantity
-    }}>
+    <OrderContext.Provider
+      value={{
+        orderItems,
+        orderPlaced,
+        orderNumber,
+        addToOrder,
+        updateQuantity,
+        removeItem,
+        clearOrder,
+        placeOrder,
+        resetPlacedOrder,
+        getTotalPrice,
+        getTotalItems,
+        getItemQuantity,
+      }}
+    >
       {children}
     </OrderContext.Provider>
   );
@@ -90,7 +120,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 export const useOrder = () => {
   const context = useContext(OrderContext);
   if (!context) {
-    throw new Error('useOrder must be used within OrderProvider');
+    throw new Error("useOrder must be used within OrderProvider");
   }
   return context;
 };
