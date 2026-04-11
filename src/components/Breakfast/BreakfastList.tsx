@@ -8,6 +8,7 @@ interface Props {
   activeBeverageTab: BeverageTab;
   activeHealthTab: HealthTab;
   foodType: FoodType;
+  searchQuery?: string;
   onItemClick?: (item: BreakfastItem) => void;
 }
 
@@ -16,8 +17,11 @@ const MenuList: React.FC<Props> = ({
   activeBeverageTab, 
   activeHealthTab,
   foodType,
+  searchQuery = "",
   onItemClick
 }) => {
+const normalizedQuery = searchQuery.trim().toLowerCase();
+
 const filteredItems = useMemo(() => {
   const baseItems = BreakfastItems.filter((item) => {
     if (item.category === "Beverages") return true;
@@ -26,16 +30,23 @@ const filteredItems = useMemo(() => {
     return foodType === "Veg";
   });
 
+  const searchFilteredItems = normalizedQuery
+    ? baseItems.filter((item) => {
+        const haystack = `${item.name} ${item.description}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      })
+    : baseItems;
+
   if (activeTab === "All") {
-    return baseItems;
+    return searchFilteredItems;
   }
 
   if (activeTab === "Bestseller") {
-    return baseItems.filter((item) => item.isBestseller);
+    return searchFilteredItems.filter((item) => item.isBestseller);
   }
 
   if (activeTab === "Beverages") {
-    const beverageItems = BreakfastItems.filter(
+    const beverageItems = searchFilteredItems.filter(
       (item) => item.category === "Beverages",
     );
 
@@ -49,17 +60,19 @@ const filteredItems = useMemo(() => {
   }
 
   if (activeTab === "Health") {
-    const healthItems = baseItems.filter((item) => item.category === "Health");
+    const healthItems = searchFilteredItems.filter((item) => item.category === "Health");
     return healthItems.filter((item) => item.subCategory === activeHealthTab);
   }
 
-  return baseItems.filter((item) => item.category === activeTab);
-}, [activeTab, activeBeverageTab, activeHealthTab, foodType]);
+  return searchFilteredItems.filter((item) => item.category === activeTab);
+}, [activeTab, activeBeverageTab, activeHealthTab, foodType, normalizedQuery]);
 
   if (filteredItems.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">No items found in this category</p>
+        <p className="text-gray-400">
+          {normalizedQuery ? "No items match your search" : "No items found in this category"}
+        </p>
       </div>
     );
   }

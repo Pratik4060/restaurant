@@ -40,9 +40,12 @@ const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
       nextErrors.name = 'Please enter at least 2 letters.';
     }
 
-    if (normalizedMobile.length < 10) {
+    if (normalizedMobile.length < 10 || normalizedMobile.length > 10 ) {
       nextErrors.mobile = 'Please enter a valid mobile number.';
-    }
+    } else if (/^(\d)\1{9}$/.test(normalizedMobile)) {
+  // checks same digit repeated 10 times
+  nextErrors.mobile = 'Mobile number cannot have all digits the same.';
+}
 
     if (!formData.guests.trim()) {
       nextErrors.guests = 'Please enter the number of guests.';

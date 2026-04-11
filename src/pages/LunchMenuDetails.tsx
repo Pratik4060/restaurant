@@ -34,6 +34,7 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack ,foodTyp
     "menu" | "orders" | "track" | "bill"
   >("menu");
   const [trackResetSignal, setTrackResetSignal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<
     LunchItem | BreakfastItem | null
   >(null);
@@ -225,7 +226,9 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
 
           <input
             type="text"
-            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search dishes"
             className="w-full border-b py-2 pl-10 pr-10 text-sm outline-none"
           />
 
@@ -276,6 +279,7 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
           activeTab={activeTab}
           activeBeverageTab={activeBeverageTab}
           foodType={foodType}
+          searchQuery={searchQuery}
           onAddToOrder={handleAddToOrder}
           onItemClick={handleItemClick}
         />

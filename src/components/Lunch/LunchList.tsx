@@ -13,6 +13,7 @@ interface Props {
   activeTab: LunchTab | BreakfastTab;
   activeBeverageTab: BeverageTab;
   foodType: FoodType
+  searchQuery?: string;
   onAddToOrder: (item: LunchItem | BreakfastItem) => void;
   onItemClick?: (item: LunchItem | BreakfastItem) => void;
 }
@@ -20,21 +21,30 @@ interface Props {
 const LunchList: React.FC<Props> = ({
   activeTab,
   foodType,
-  
   activeBeverageTab,
+  searchQuery = "",
   onItemClick,
 }) => {
+const normalizedQuery = searchQuery.trim().toLowerCase();
+
 const filteredItems = useMemo(() => {
   const lunchMealItems = LunchItems.filter(
     (item) => (item.foodType ?? "Veg") === foodType,
   );
 
+  const searchFilteredItems = normalizedQuery
+    ? lunchMealItems.filter((item) => {
+        const haystack = `${item.name} ${item.description}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      })
+    : lunchMealItems;
+
   if (activeTab === "All") {
-    return lunchMealItems;
+    return searchFilteredItems;
   }
 
   if (activeTab === "Bestseller") {
-    return lunchMealItems.filter((item) => item.isBestseller);
+    return searchFilteredItems.filter((item) => item.isBestseller);
   }
 
   if (activeTab === "Beverages") {
@@ -43,21 +53,33 @@ const filteredItems = useMemo(() => {
     );
 
     if (activeBeverageTab === "All") {
-      return beverageItems;
+      return normalizedQuery
+        ? beverageItems.filter((item) => {
+            const haystack = `${item.name} ${item.description}`.toLowerCase();
+            return haystack.includes(normalizedQuery);
+          })
+        : beverageItems;
     }
 
     return beverageItems.filter(
-      (item) => item.subCategory === activeBeverageTab,
+      (item) =>
+        item.subCategory === activeBeverageTab &&
+        (!normalizedQuery ||
+          `${item.name} ${item.description}`
+            .toLowerCase()
+            .includes(normalizedQuery)),
     );
   }
 
-  return lunchMealItems.filter((item) => item.category === activeTab);
-}, [activeTab, activeBeverageTab, foodType]);
+  return searchFilteredItems.filter((item) => item.category === activeTab);
+}, [activeTab, activeBeverageTab, foodType, normalizedQuery]);
 
   if (filteredItems.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">No items found in this category</p>
+        <p className="text-gray-400">
+          {normalizedQuery ? "No items match your search" : "No items found in this category"}
+        </p>
       </div>
     );
   }

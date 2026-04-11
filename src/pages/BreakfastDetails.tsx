@@ -29,6 +29,7 @@ const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu');
   const [trackResetSignal, setTrackResetSignal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<BreakfastItem | null>(null);
 
   
@@ -168,7 +169,9 @@ if (currentView === "bill") {
           </span>
           <input
             type="text"
-            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search dishes"
             className="w-full border-b py-2 pl-10 pr-10 text-sm"
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -221,6 +224,7 @@ if (currentView === "bill") {
           activeBeverageTab={activeBeverageTab}
           activeHealthTab={activeHealthTab}
           foodType={foodType}
+          searchQuery={searchQuery}
           onItemClick={handleItemClick}
         />
       </div>

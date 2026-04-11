@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo} from "react";
 import { ArrowRight, Mic, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo1 from "../assets/logo1.svg";
@@ -14,6 +14,20 @@ import nonevegBreakfast from "../assets/Breakfast/Non-veg/Breakfast.svg"
 import Lunch from "../assets/Breakfast/Non-veg/Lunch.svg"
 import Dinner from "../assets/Breakfast/Non-veg/Dinner.svg"
 import type { FoodType, MealCategory, UserData } from "../types";
+import { BreakfastItems } from "../components/Breakfast/Data";
+import { LunchItems } from "../components/Lunch/Data";
+import ItemDetailPage from "../components/ItemDetailsPage";
+
+
+type HomeSearchItem = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  foodType?: "Veg" | "Non Veg";
+  source: "Breakfast" | "Lunch";
+};
 
 interface HomePageProps {
   user: UserData;
@@ -101,6 +115,39 @@ const HomePage: React.FC<HomePageProps> = ({
   onSelect,
 }) => {
   const [currentOffer, setCurrentOffer] = useState(0);
+const [searchQuery, setSearchQuery] = useState("");
+const [selectedSearchItem, setSelectedSearchItem] = useState<HomeSearchItem | null>(null);
+
+const allSearchItems = useMemo<HomeSearchItem[]>(() => {
+  return [
+    ...BreakfastItems.map((item) => ({
+      ...item,
+      source: "Breakfast" as const,
+    })),
+    ...LunchItems.map((item) => ({
+      ...item,
+      source: "Lunch" as const,
+    })),
+  ];
+}, []);
+
+const searchResults = useMemo(() => {
+  const q = searchQuery.trim().toLowerCase();
+  if (!q) return [];
+
+  return allSearchItems.filter((item) => {
+    const text = `${item.name} ${item.description}`.toLowerCase();
+    return text.includes(q);
+  });
+}, [allSearchItems, searchQuery]);
+
+const vegResults = searchResults.filter(
+  (item) => (item.foodType ?? "Veg") === "Veg",
+);
+
+const nonVegResults = searchResults.filter(
+  (item) => item.foodType === "Non Veg",
+);
 
   const getInitialMealIndex = () => {
     const hour = new Date().getHours();
@@ -135,6 +182,27 @@ useEffect(() => {
     setCurrentMealIdx(0);
   }, [foodType]);
 
+if (selectedSearchItem) {
+  return (
+    <ItemDetailPage
+      item={{
+        id: selectedSearchItem.id,
+        name: selectedSearchItem.name,
+        price: selectedSearchItem.price,
+        description: selectedSearchItem.description,
+        image: selectedSearchItem.image,
+        rating: 4.5,
+        time: "15-20 Min",
+        isVeg: selectedSearchItem.foodType !== "Non Veg",
+        category: selectedSearchItem.source,
+      }}
+      onBack={() => setSelectedSearchItem(null)}
+      onNavigateToMenu={() => setSelectedSearchItem(null)}
+      onNavigateToOrders={() => setSelectedSearchItem(null)}
+    />
+  );
+}
+
 
 
 
@@ -166,14 +234,115 @@ useEffect(() => {
             </div>
 
             {/* Search Bar stays static */}
-            <div className="mb-7 flex items-center rounded-xl bg-white px-4 py-3 shadow-lg">
-              <Search className="mr-2 h-4 w-4 text-gray-400" />
-              <input
-                className="w-full bg-transparent text-sm text-[#2a211b] outline-none"
-                placeholder="Search"
-              />
-              <Mic className="h-3.5 w-3.5 text-gray-400" />
+<div className="mb-7 rounded-xl bg-white px-4 py-3 shadow-lg">
+  <div className="flex items-center">
+    <Search className="mr-2 h-4 w-4 text-gray-400" />
+    <input
+      className="w-full bg-transparent text-sm text-[#2a211b] outline-none"
+      placeholder="Search veg and non-veg dishes"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+    <Mic className="h-3.5 w-3.5 text-gray-400" />
+  </div>
+
+  {searchQuery.trim() && (
+    <div className="mt-4 max-h-80 overflow-y-auto rounded-2xl border border-gray-100 bg-[#fffaf3] p-3">
+      {searchResults.length === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">
+          No veg or non-veg items found
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {vegResults.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-green-600">
+                Veg
+              </p>
+              <div className="space-y-2">
+                {vegResults.map((item) => (
+<button
+  key={`${item.source}-${item.id}`}
+  onClick={() => setSelectedSearchItem(item)}
+  className="w-full rounded-xl bg-white px-3 py-2 text-left shadow-sm"
+>
+  <div className="flex items-center gap-3">
+    <img
+      src={item.image}
+      alt={item.name}
+      className="h-14 w-14 rounded-xl object-cover bg-gray-100"
+    />
+
+    <div className="flex flex-1 items-start justify-between gap-3">
+      <div>
+        <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+        <p className="text-xs text-gray-500 line-clamp-2">
+          {item.description}
+        </p>
+        <p className="mt-1 text-sm font-semibold text-orange-500">
+          ₹{item.price}
+        </p>
+      </div>
+
+      <span
+        className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${
+          (item.foodType ?? "Veg") === "Veg"
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+        }`}
+      >
+        {item.source}
+      </span>
+    </div>
+  </div>
+</button>
+
+                ))}
+                {nonVegResults.map((item) => (
+  <button
+    key={`${item.source}-${item.id}`}
+    onClick={() => setSelectedSearchItem(item)}
+    className="w-full rounded-xl bg-white px-3 py-2 text-left shadow-sm"
+  >
+    <div className="flex items-center gap-3">
+      <img
+        src={item.image}
+        alt={item.name}
+        className="h-14 w-14 rounded-xl object-cover bg-gray-100"
+      />
+
+      <div className="flex flex-1 items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+          <p className="text-xs text-gray-500 line-clamp-2">
+            {item.description}
+          </p>
+          <p className="mt-1 text-sm font-semibold text-orange-500">
+            ₹{item.price}
+          </p>
+        </div>
+
+        <span className="shrink-0 rounded-full bg-red-100 px-2 py-1 text-[10px] font-bold text-red-700">
+          {item.source}
+        </span>
+      </div>
+    </div>
+  </button>
+))}
+
+              </div>
+
             </div>
+          )}
+
+
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+
 
             {/* 
          FIX 2: Place AnimatePresence here so only 
