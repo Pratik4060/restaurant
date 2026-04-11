@@ -28,6 +28,7 @@ const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu');
+  const [trackResetSignal, setTrackResetSignal] = useState(0);
   const [selectedItem, setSelectedItem] = useState<BreakfastItem | null>(null);
 
   
@@ -44,18 +45,23 @@ const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
     setCurrentView('track');
     return;
   }
+  if (view === "track") {
+    setTrackResetSignal((prev) => prev + 1);
+  }
   setCurrentView(view);
   setSelectedItem(null);
 };
 
 const handleConfirmOrder = () => {
   placeOrder();
+  setTrackResetSignal((prev) => prev + 1);
   setCurrentView("track");
 };
 
 const handleTrackingFromDetail = () => {
   placeOrder();
   setSelectedItem(null);
+  setTrackResetSignal((prev) => prev + 1);
   setCurrentView("track");
 };
 
@@ -102,11 +108,13 @@ const handleTrackingFromDetail = () => {
 if (currentView === "track") {
   return (
     <TrackOrderPage
+      key={trackResetSignal}
       onBack={() => setCurrentView("menu")}
       onViewChange={handleNavChange}
       orderPlaced={orderPlaced}
       orderNumber={orderNumber}
       estimatedTime="15-20"
+      resetSignal={trackResetSignal}
       onReadyComplete={() => setCurrentView("bill")}
     />
   );

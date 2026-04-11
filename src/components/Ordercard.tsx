@@ -1,6 +1,6 @@
 // components/OrderCard.tsx
 import React from 'react';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, } from 'lucide-react';
 import Ruppes from '../assets/Ruppes.svg';
 
 export interface OrderItem {
@@ -101,35 +101,38 @@ const OrderCard: React.FC<OrderCardProps> = ({
           {showRemoveButton && onRemove && (
             <button 
               onClick={() => onRemove(id)}
-              className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"
+              className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors "
               aria-label="Remove item"
             >
-              <Trash2 size={dimensions.iconSize} />
+              <Trash2 size={22} className='mb-2' />
             </button>
           )}
 
           {/* Quantity Controller */}
-          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
-            <button 
-              onClick={() => onDecrement(id)}
-              className={`px-3 py-1.5 hover:bg-gray-100 text-gray-600 transition-colors`}
-              aria-label="Decrease quantity"
-            >
-              <Minus size={dimensions.iconSize} strokeWidth={2} />
-            </button>
-            
-            <span className={`px-3 py-1 text-base font-medium min-w-[40px] text-center`}>
-              {quantity.toString().padStart(2, '0')}
-            </span>
+<div 
+  onClick={(e) => e.stopPropagation()}
+  className="flex items-center gap-2 bg-[#F7F7F7] rounded-sm px-1 py-1 border border-gray-300 w-30 justify-between"
+>
+  <button 
+    onClick={() => onDecrement(id)}
+    className="text-black w-6 h-6 flex items-center justify-center bg-white rounded"
+    aria-label="Decrease quantity"
+  >
+    <span className="block leading-none text-[22px] mb-1">−</span>
+  </button>
 
-            <button 
-              onClick={() => onIncrement(id)}
-              className={`px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white transition-colors`}
-              aria-label="Increase quantity"
-            >
-              <Plus size={dimensions.iconSize} strokeWidth={2} />
-            </button>
-          </div>
+  <span className="text-black text-sm font-semibold min-w-[20px] text-center">
+    {quantity.toString().padStart(2, '0')}
+  </span>
+
+  <button 
+    onClick={() => onIncrement(id)}
+    className="text-black w-6 h-6 flex items-center justify-center bg-orange-300 rounded"
+    aria-label="Increase quantity"
+  >
+    <span className="block leading-none text-center text-[22px] mb-1 ">+</span>
+  </button>
+</div>
         </div>
       </div>
     </div>

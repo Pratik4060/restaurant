@@ -33,6 +33,7 @@ const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack ,foodTyp
   const [currentView, setCurrentView] = useState<
     "menu" | "orders" | "track" | "bill"
   >("menu");
+  const [trackResetSignal, setTrackResetSignal] = useState(0);
   const [selectedItem, setSelectedItem] = useState<
     LunchItem | BreakfastItem | null
   >(null);
@@ -88,6 +89,10 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
       return;
     }
 
+    if (view === "track") {
+      setTrackResetSignal((prev) => prev + 1);
+    }
+
     setCurrentView(view);
     setSelectedItem(null);
   };
@@ -110,12 +115,14 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
 
   const handleConfirmOrder = () => {
     placeOrder();
+    setTrackResetSignal((prev) => prev + 1);
     setCurrentView("track");
   };
 
   const handleTrackingFromDetail = () => {
     placeOrder();
     setSelectedItem(null);
+    setTrackResetSignal((prev) => prev + 1);
     setCurrentView("track");
   };
 
@@ -159,15 +166,17 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
 
   if (currentView === "track") {
     return (
-      <TrackOrderPage
-        onBack={() => setCurrentView("menu")}
-        onViewChange={handleNavChange}
-        orderPlaced={orderPlaced}
-        orderNumber={orderNumber}
-        estimatedTime="15-20"
-        onReadyComplete={() => setCurrentView("bill")}
-      />
-    );
+    <TrackOrderPage
+      key={trackResetSignal}
+      onBack={() => setCurrentView("menu")}
+      onViewChange={handleNavChange}
+      orderPlaced={orderPlaced}
+      orderNumber={orderNumber}
+      estimatedTime="15-20"
+      resetSignal={trackResetSignal}
+      onReadyComplete={() => setCurrentView("bill")}
+    />
+  );
   }
 
   if (currentView === "bill") {

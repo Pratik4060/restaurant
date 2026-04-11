@@ -7,7 +7,7 @@ import back from "../assets/back.svg";
 import search from "../assets/search.svg";
 import microphone from "../assets/microphone.svg";
 import Ruppes from '../assets/Ruppes.svg';
-import bell from '../assets/bell.svg'
+import bell1 from '../assets/bell1.svg'
 
 
 interface OrderPageProps {
@@ -55,12 +55,11 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
           </button>
           <div className="flex gap-3">
             <div className="relative">
-              <button className="text-xl">🛒</button>
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {getTotalItems()}
-                </span>
-              )}
+              <button className="text-xl">
+              <img src={bell1} alt="bell" />
+
+
+              </button>
             </div>
           </div>
         </div>
@@ -105,7 +104,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
         <div className="flex gap-3">
           <div className="relative">
             <button className="text-xl">
-              <img src={bell} alt="bell" />
+              <img src={bell1} alt="bell" />
             </button>
           </div>
         </div>

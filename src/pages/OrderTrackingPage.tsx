@@ -10,6 +10,7 @@ interface TrackOrderPageProps {
   orderNumber?: string;
   estimatedTime?: string;
   onReadyComplete?: () => void;
+  resetSignal?: number;
 }
 
 
@@ -20,6 +21,7 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   orderNumber,
   estimatedTime = "15-20",
   onReadyComplete,
+  resetSignal,
 }) => {
   // 0: Accepted, 1: Preparing, 2: Ready
   const [currentStep, setCurrentStep] = useState(0);
@@ -31,6 +33,12 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
     { id: 1, label: "Preparing" },
     { id: 2, label: "Ready" },
   ];
+
+  // Replay the animation from the start whenever the page is re-opened.
+  useEffect(() => {
+    setCurrentStep(0);
+    setAnimationStarted(false);
+  }, [resetSignal]);
 
   // Automatic transition through steps after user lands on page
   useEffect(() => {

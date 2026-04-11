@@ -1,16 +1,15 @@
-import pancake from '../../../assets/Breakfast/all/pancake.svg';
 import idliSambar from '../../../assets/Breakfast/all/idli.svg';
 import dosa from '../../../assets/Breakfast/all/dosa.svg';
 import fruitSalad from '../../../assets/Breakfast/Health/FruitSalad.svg';
 import type { BreakfastItem } from './BreakfastTypes';
-
+import PavBhaji from '../../../assets/Breakfast/all/Pavbhaji.svg'
 export const coreItems: BreakfastItem[] = [
   {
     id: 31,
-    name: 'Pancake',
-    description: 'Fluffy Pancakes Served With Maple Syrup And Butter',
-    price: 600,
-    image: pancake,
+    name: 'Pav Bhaji ',
+    description: 'Spicy Mashed Vegetables Served With Buttered Pav',
+    price: 150,
+    image: PavBhaji,
     category: 'All',
     isBestseller: true,
   },

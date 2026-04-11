@@ -88,20 +88,21 @@ const MenuCard = <T extends MenuCardItem,>({ item, onItemClick }: Props<T>) => {
           ) : (
             <div 
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-2 bg-black rounded-md px-2 py-1"
+              className="  flex items-center gap-2 bg-[#F7F7F7] rounded-sm px-1 py-1 border border-gray-300 w-30  justify-between"
             >
               <button 
                 onClick={decrement}
-                className="text-white text-base font-bold w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded"
+                className="text-black  w-6 h-6 flex items-center justify-center bg-white rounded "
               >
                 −
               </button>
-              <span className="text-white text-sm font-semibold min-w-[20px] text-center">
+
+              <span className="  text-black text-sm font-semibold min-w-[20px] ">
                 {quantity.toString().padStart(2, '0')}
               </span>
               <button 
                 onClick={increment}
-                className="text-white text-base font-bold w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded"
+                className="text-black  w-6 h-6 flex items-center justify-center bg-orange-300 rounded"
               >
                 +
               </button>

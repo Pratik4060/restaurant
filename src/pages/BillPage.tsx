@@ -4,7 +4,8 @@ import BottomNav from "../components/BottomNav";
 import { useOrder } from "../contexts/OrderContext";
 import bell from "../assets/bell.svg";
 import Ruppes from "../assets/Ruppes.svg";
-
+import logo1 from "../assets/logo1.svg"
+import bill1 from "../assets/bill1.svg"
 interface BillPageProps {
   onBack: () => void;
   onViewChange: (view: "menu" | "orders" | "track" | "bill") => void;
@@ -57,9 +58,9 @@ const BillPage: React.FC<BillPageProps> = ({
             <>
               <div className="bg-white rounded-[28px] border border-orange-200 shadow-sm px-5 py-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-[22px] bg-[#F6F6F6] shadow-sm flex items-center justify-center mb-4">
-                    <span className="text-orange-500 font-bold text-lg">
-                      Zonix
+                  <div className="w-20 h-20 rounded-[22px] bg-[white] shadow-sm flex items-center justify-center mb-4">
+                    <span>
+                      <img src={logo1} alt="" />
                     </span>
                   </div>
 
@@ -72,21 +73,7 @@ const BillPage: React.FC<BillPageProps> = ({
                 </div>
 
                 <div className="my-6 flex justify-center">
-                  <div className="w-28 h-28 rounded-full bg-[#D9DDF8] relative flex items-center justify-center">
-                    <div className="w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center rotate-[-12deg]">
-                      <div className="text-center">
-                        <p className="text-[10px] text-gray-500 font-semibold">
-                          Receipt
-                        </p>
-                        <img
-                          src={Ruppes}
-                          alt="rupees"
-                          className="w-4 h-4 mx-auto mt-1"
-                        />
-                      </div>
-                    </div>
-                    <div className="absolute right-2 top-2 w-7 h-7 rounded-full bg-[#4A3A2A]" />
-                  </div>
+                  <img src={bill1} alt="bill1"/>
                 </div>
 
                 <div className="border-t border-dashed border-gray-300 pt-4 space-y-4">
