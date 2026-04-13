@@ -20,7 +20,7 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
     name: '',
     mobile: '',
     guests: '1',
-    table: `Table #${tableNumber}`,
+    table: `${tableNumber}`,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof UserData, string>>>({});
   const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);

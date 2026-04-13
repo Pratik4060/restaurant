@@ -1,31 +1,133 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import { useOrder } from "../contexts/OrderContext";
 import bell from "../assets/bell.svg";
 import Ruppes from "../assets/Ruppes.svg";
-import logo1 from "../assets/logo1.svg"
-import bill1 from "../assets/bill1.svg"
+import logo1 from "../assets/logo1.svg";
+import bill1 from "../assets/bill1.svg";
+import PaymentMethodButton from "../components/payment/PaymentMethodButton";
+import UPIPaymentPanel from "../components/payment/UPIPaymentPanel";
+import CardPaymentPanel from "../components/payment/CardPaymentPanel";
+import CashPaymentPanel from "../components/payment/CashPaymentPanel";
+import PaymentSuccessPage from "./PaymentSuccessPage";
+
 interface BillPageProps {
   onBack: () => void;
   onViewChange: (view: "menu" | "orders" | "track" | "bill") => void;
   orderPlaced: boolean;
-  tableNumber?: string;
+  tableNumber: string;
   orderNumber?: string;
 }
+
+type PaymentMethod = "upi" | "card" | "cash" | null;
+
+const PAYMENT_API_BASE = `${window.location.protocol}//${window.location.hostname}:3001`;
 
 const BillPage: React.FC<BillPageProps> = ({
   onBack,
   onViewChange,
   orderPlaced,
-  tableNumber = "12",
+  tableNumber,
   orderNumber = "1234",
 }) => {
   const { orderItems, getTotalPrice } = useOrder();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
+  const [paid, setPaid] = useState(false);
 
   const subtotal = getTotalPrice();
   const gst = Math.round(subtotal * 0.05);
   const totalAmount = subtotal + gst;
+
+  useEffect(() => {
+    if (!paymentMethod || !orderPlaced) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${PAYMENT_API_BASE}/api/payments/${orderNumber}`);
+        const data = await res.json();
+
+        if (data?.paid) {
+          setPaid(true);
+          clearInterval(interval);
+        }
+      } catch {
+        // ignore polling errors for now
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [paymentMethod, orderNumber, orderPlaced]);
+
+  const startPaymentRecord = async () => {
+    try {
+      await fetch(`${PAYMENT_API_BASE}/api/payments/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderNumber, tableNumber }),
+      });
+    } catch {
+      // ignore for now
+    }
+  };
+
+  if (paid) {
+    return (
+<PaymentSuccessPage
+  orderNumber={orderNumber}
+  tableNumber={tableNumber}
+  onBack={() => {
+    setPaid(false);
+    setPaymentMethod(null);
+  }}
+  onViewChange={onViewChange}
+  orderItems={orderItems}
+  subtotal={subtotal}
+  gst={gst}
+  totalAmount={totalAmount}
+/>
+    );
+  }
+
+  if (paymentMethod === "upi") {
+    return (
+      <UPIPaymentPanel
+        orderNumber={orderNumber}
+        tableNumber={tableNumber}
+        onBack={() => {
+          setPaymentMethod(null);
+        }}
+      />
+    );
+  }
+
+  if (paymentMethod === "card") {
+    return (
+      <CardPaymentPanel
+        orderNumber={orderNumber}
+        tableNumber={tableNumber}
+        onBack={() => setPaymentMethod(null)}
+        onPaid={async () => {
+          await fetch(`${PAYMENT_API_BASE}/api/payments/${orderNumber}/paid`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tableNumber }),
+          });
+          setPaid(true);
+        }}
+      />
+    );
+  }
+
+  if (paymentMethod === "cash") {
+    return (
+      <CashPaymentPanel
+        orderNumber={orderNumber}
+        tableNumber={tableNumber}
+        onBack={() => setPaymentMethod(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] flex flex-col">
@@ -58,57 +160,59 @@ const BillPage: React.FC<BillPageProps> = ({
             <>
               <div className="bg-white rounded-[28px] border border-orange-200 shadow-sm px-5 py-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-[22px] bg-[white] shadow-sm flex items-center justify-center mb-4">
-                    <span>
-                      <img src={logo1} alt="" />
-                    </span>
+                  <div className="w-20 h-20 rounded-[22px] bg-white shadow-sm flex items-center justify-center mb-4">
+                    <img src={logo1} alt="logo" />
                   </div>
 
                   <h2 className="text-lg font-semibold text-black">
                     Order Summary
                   </h2>
                   <p className="text-sm text-gray-400 mt-1">
-                    Order #{orderNumber} • Table #{tableNumber}
+                    Order #{orderNumber} - Table #{tableNumber}
                   </p>
                 </div>
 
                 <div className="my-6 flex justify-center">
-                  <img src={bill1} alt="bill1"/>
+                  <img src={bill1} alt="bill" />
                 </div>
 
-                <div className="border-t border-dashed border-gray-300 pt-4 space-y-4">
-                  {orderItems.length === 0 ? (
-                    <p className="text-center text-gray-400 text-sm">
-                      No items added yet
-                    </p>
-                  ) : (
-                    orderItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-start justify-between gap-4"
-                      >
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-800 leading-5">
-                            • {item.name} x {item.quantity}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                          <img
-                            src={Ruppes}
-                            alt="rupees"
-                            className="w-3.5 h-3.5"
-                          />
-                          <span className="text-sm text-gray-800">
-                            {(item.price * item.quantity).toLocaleString(
-                              "en-IN",
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+<div className=" pt-4 space-y-3">
+  {orderItems.length === 0 ? (
+    <p className="text-center text-gray-400 text-sm">
+      No items added yet
+    </p>
+  ) : (
+    <>
+      {/* Header Row */}
+      <div className="flex items-center justify-between border-b border-dashed border-gray-800">
+        <p className="text-xl text-gray font-medium w-1/2">Item</p>
+        <p className="text-xl text-gray font-medium w-1/4 text-center">Qty</p>
+        <p className="text-xl text-gray font-medium w-1/4 text-right">Price</p>
+      </div>
+      
+      {/* Items Rows */}
+      {orderItems.map((item) => (
+        <div
+          key={item.id}
+          className="flex items-center justify-between"
+        >
+          <p className="text-sm text-gray-800 w-1/2 ">{item.name}</p>
+          <p className="text-sm text-gray-600 w-1/4 text-center">{item.quantity}</p>
+          <div className="flex items-center justify-end gap-1 w-1/4">
+            <img
+              src={Ruppes}
+              alt="rupees"
+              className="w-3.5 h-3.5"
+            />
+            <span className="text-sm text-gray-800">
+              {(item.price * item.quantity).toLocaleString("en-IN")}
+            </span>
+          </div>
+        </div>
+      ))}
+    </>
+  )}
+</div>
 
                 <div className="border-t border-dashed border-gray-300 mt-6 pt-4 space-y-4">
                   <div className="flex items-center justify-between">
@@ -149,32 +253,29 @@ const BillPage: React.FC<BillPageProps> = ({
                 </h3>
 
                 <div className="space-y-4">
-                  <button className="w-full rounded-2xl bg-[#EFEFEF] px-4 py-4 flex items-center gap-3 text-left">
-                    <div className="w-8 h-8 rounded-lg bg-[#FFB129] flex items-center justify-center text-white text-xs font-bold">
-                      QR
-                    </div>
-                    <span className="text-sm font-medium text-gray-800">
-                      UPI
-                    </span>
-                  </button>
+                  <PaymentMethodButton
+                    icon="QR"
+                    label="UPI"
+                    onClick={async () => {
+                      setPaymentMethod("upi");
+                      await startPaymentRecord();
+                    }}
+                  />
 
-                  <button className="w-full rounded-2xl bg-[#EFEFEF] px-4 py-4 flex items-center gap-3 text-left">
-                    <div className="w-8 h-8 rounded-lg bg-[#FFB129] flex items-center justify-center text-white text-xs font-bold">
-                      CC
-                    </div>
-                    <span className="text-sm font-medium text-gray-800">
-                      Card
-                    </span>
-                  </button>
+                  <PaymentMethodButton
+                    icon="CC"
+                    label="Card"
+                    onClick={async () => {
+                      setPaymentMethod("card");
+                      await startPaymentRecord();
+                    }}
+                  />
 
-                  <button className="w-full rounded-2xl bg-[#EFEFEF] px-4 py-4 flex items-center gap-3 text-left">
-                    <div className="w-8 h-8 rounded-lg bg-[#FFB129] flex items-center justify-center text-white text-xs font-bold">
-                      ₹
-                    </div>
-                    <span className="text-sm font-medium text-gray-800">
-                      Pay at Counter / Cash
-                    </span>
-                  </button>
+                  <PaymentMethodButton
+                    icon="₹"
+                    label="Pay at Counter / Cash"
+                    onClick={() => setPaymentMethod("cash")}
+                  />
                 </div>
               </div>
             </>

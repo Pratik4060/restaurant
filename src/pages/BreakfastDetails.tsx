@@ -19,10 +19,11 @@ interface Props {
   category: MealCategory;
   userName: string;
   foodType: "Veg" | "Non Veg";
+  tableNumber:string
   onBack: () => void;
 }
 
-const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType }) => {
+const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType,tableNumber }) => {
 const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [activeTab, setActiveTab] = useState<BreakfastTab>('All');
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
@@ -128,7 +129,7 @@ if (currentView === "bill") {
       onBack={() => setCurrentView("menu")}
       onViewChange={handleNavChange}
       orderPlaced={orderPlaced}
-      tableNumber="12"
+      tableNumber={tableNumber}
       orderNumber={orderNumber || "1234"}
     />
   );
