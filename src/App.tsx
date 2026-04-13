@@ -8,14 +8,22 @@ import type{ AppStep, UserData, MealCategory, FoodType } from './types';
 import LunchMenuDetails from './pages/LunchMenuDetails';
 import { useOrder } from './contexts/OrderContext';
 
+const getTableNumberFromUrl = (): string => {
+  const params = new URLSearchParams(window.location.search);
+  const rawTable = params.get('table') ?? '';
+  const digits = rawTable.replace(/\D/g, '');
+  return digits ;
+};
+
 const App: React.FC = () => {
   const { clearOrder, resetPlacedOrder } = useOrder();
-  const [step, setStep] = useState<AppStep>('scanner');
+  const tableNumber = getTableNumberFromUrl();
+  const [step, setStep] = useState<AppStep>(window.location.search.includes('table=') ? 'form' : 'scanner');
   const [userData, setUserData] = useState<UserData>({
     name: '',
     mobile: '',
     guests: '1',
-    table: '12'
+    table: tableNumber
   });
   const [selectedCategory, setSelectedCategory] = useState<MealCategory>('Breakfast');
 const [selectedFoodType, setSelectedFoodType] = useState<FoodType>("Veg");
@@ -38,7 +46,7 @@ const [selectedFoodType, setSelectedFoodType] = useState<FoodType>("Veg");
     <div className="min-h-screen w-full">
       {step === "scanner" && <QRScanner onScan={onScanSuccess} />}
       {step === "loading" && <LoadingAnim />}
-      {step === "form" && <DetailsForm onSubmit={handleFormSubmit} />}
+      {step === "form" && <DetailsForm onSubmit={handleFormSubmit} tableNumber={tableNumber} />}
       {step === "home" && (
         <Home
           user={userData}

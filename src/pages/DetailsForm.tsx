@@ -11,15 +11,16 @@ import type { UserData } from '../types';
 
 interface Props {
   onSubmit: (data: UserData) => void;
+  tableNumber: string;
 }
 
-const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
+const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
   const guestOptions = useMemo(() => ['1', '2', '3', '4', '5', '6', '7'], []);
   const [formData, setFormData] = useState<UserData>({
     name: '',
     mobile: '',
     guests: '1',
-    table: 'Table #12',
+    table: `Table #${tableNumber}`,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof UserData, string>>>({});
   const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);
