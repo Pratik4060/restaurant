@@ -18,7 +18,7 @@ const getTableNumberFromUrl = (): string => {
 const App: React.FC = () => {
   const { clearOrder, resetPlacedOrder } = useOrder();
   const tableNumber = getTableNumberFromUrl();
-  const [step, setStep] = useState<AppStep>(window.location.search.includes('table=') ? 'form' : 'scanner');
+  const [step, setStep] = useState<AppStep>(window.location.search.includes('table=') ? 'loading' : 'scanner');
   const [userData, setUserData] = useState<UserData>({
     name: '',
     mobile: '',
