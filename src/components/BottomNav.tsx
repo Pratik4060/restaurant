@@ -26,10 +26,18 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onViewChange }) => {
           onClick={() => onViewChange(item.id as any)}
           className="flex flex-col items-center"
         >
-          <span className={activeView === item.id ? 'text-orange-400' : 'text-gray-500'}>
-            <img src={item.img} alt={item.label} className="w-6 h-6" />
-          </span>
-          <span className={`text-[9px] mt-0.5 ${activeView === item.id ? 'text-orange-400' : 'text-gray-500'}`}>
+<span>
+  <img
+    src={item.img}
+    alt={item.label}
+    className={`w-6 h-6 ${
+      activeView === item.id
+        ? 'brightness-0 saturate-100 invert-[60%] sepia-[80%] saturate-[500%] hue-rotate-[10deg]'
+        : 'grayscale '
+    }`}
+  />
+</span>
+          <span className={`text-[9px] mt-0.5 font-bold ${activeView === item.id ? 'text-[#F2D2A5]' : 'text-gray-500'}`}>
             {item.label}
           </span>
         </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useMemo} from "react";
-import { ArrowRight, Mic, Search } from "lucide-react";
+import { Mic, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo1 from "../assets/logo1.svg";
 import lunch from "../assets/lunch.svg";
@@ -17,7 +17,7 @@ import type { FoodType, MealCategory, UserData } from "../types";
 import { BreakfastItems } from "../components/Breakfast/Data";
 import { LunchItems } from "../components/Lunch/Data";
 import ItemDetailPage from "../components/ItemDetailsPage";
-
+import arrow from "../assets/Arrow 1.svg"
 
 type HomeSearchItem = {
   id: number;
@@ -48,19 +48,19 @@ const OFFERS = [
     title: "Combo Offer",
     desc: "Buy 1 Get 1 Free on Breakfast items. Limited time only.",
     img: combo,
-    gradient: "background: linear-gradient(114.35deg, #2A460D 0.77%, #666666 97.98%)",
+    gradient: "linear-gradient(114.35deg, #2A460D 0.77%, #666666 97.98%)",
   },
 {
     title: "Quick Bite Deal",
     desc: "Flat ₹50 OFF on Quick Bites. On orders above ₹199",
     img: bite,
-    gradient: "background: linear-gradient(115.74deg, #970808 4.97%, #053F62 100%)",
+    gradient: "linear-gradient(115.74deg, #970808 4.97%, #053F62 100%)",
   },
 {
     title: "Free Add-on",
     desc: "Free Fresh Juice on orders above ₹399. Auto applied at checkout",
     img: freeadd,
-    gradient: "background: linear-gradient(115.68deg, #446B83 1.81%, #116848 100%)",
+    gradient: "linear-gradient(115.68deg, #446B83 1.81%, #116848 100%)",
   },
   ];
 
@@ -220,23 +220,23 @@ if (selectedSearchItem) {
             className="px-6 pb-6 pt-6 text-white"
           >
             {/* Header (Logo & Bell) stays static */}
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-2 flex items-center justify-between">
               <div className="flex h-14 w-14 items-center justify-center">
                 <img
                   src={logo1}
                   alt="Zohnix"
-                  className="h-9 w-9 object-contain"
+                  className="h-19 w-19 object-contain"
                 />
               </div>
               <button>
-                <img src={bell} className="h-6 w-6" alt="notifications" />
+                <img src={bell} className="h-8 w-8" alt="notifications" />
               </button>
             </div>
 
             {/* Search Bar stays static */}
-<div className="mb-7 rounded-xl bg-white px-4 py-3 shadow-lg">
-  <div className="flex items-center">
-    <Search className="mr-2 h-4 w-4 text-gray-400" />
+<div className="mb-7 rounded-xl bg-white px-4 py-3">
+  <div className="flex items-center ">
+    <Search className="mr-2 h-4 w-4 text-gray-400 " />
     <input
       className="w-full bg-transparent text-sm text-[#2a211b] outline-none"
       placeholder="Search veg and non-veg dishes"
@@ -365,9 +365,10 @@ if (selectedSearchItem) {
                     <p className="max-w-[240px] text-sm leading-relaxed text-white/90">
                       {OFFERS[currentOffer].desc}
                     </p>
-                    <button className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#ffba2f] px-5 py-2.5 text-sm font-bold text-[#261708] shadow-lg">
-                      Order Now <ArrowRight className="h-4 w-4" />
-                    </button>
+                    <button className="mt-5 flex items-center gap-3 rounded-xl bg-[linear-gradient(90deg,#BC9F76_0%,#64471E_100%)] px-5 py-2 text-md  text-white ">
+                         <span className="mb-1">Order Now </span> 
+                      <img  src = {arrow} alt= "arrow" className="h-4 w-6 object-contain mt-" />
+                    </button> 
                   </div>
 
                   <div
@@ -459,10 +460,10 @@ if (selectedSearchItem) {
                         <button
                 type="button"
                 onClick={() => onSelect(currentMeal.category)}
-                className="group flex items-center gap-3 rounded-full bg-black px-10 py-4 text-white shadow-2xl hover:scale-105 transition-transform"
+                className="group flex items-center gap-3 rounded-full bg-black px-6 py-2 text-white shadow-2xl hover:scale-105 transition-transform"
               >
-                <span className="text-sm font-bold">Explorer</span>
-                <ArrowRight className="h-5 w-5" />
+                <span className="text-md font-bold mb-1">Explore</span>
+                <img  src = {arrow} alt="arrow" className="" />
               </button>
         </div>
       </motion.div>

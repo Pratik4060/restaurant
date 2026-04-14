@@ -55,13 +55,13 @@ const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
 };
 
 const handleConfirmOrder = () => {
-  placeOrder();
+  placeOrder({ tableNumber });
   setTrackResetSignal((prev) => prev + 1);
   setCurrentView("track");
 };
 
 const handleTrackingFromDetail = () => {
-  placeOrder();
+  placeOrder({ tableNumber });
   setSelectedItem(null);
   setTrackResetSignal((prev) => prev + 1);
   setCurrentView("track");
@@ -120,7 +120,7 @@ if (currentView === "track") {
       onReadyComplete={() => setCurrentView("bill")}
     />
   );
-}
+  }
 
 
 if (currentView === "bill") {

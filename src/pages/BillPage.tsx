@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import { useOrder } from "../contexts/OrderContext";
 import bell from "../assets/bell.svg";
 import Ruppes from "../assets/Ruppes.svg";
-import logo1 from "../assets/logo1.svg";
 import bill1 from "../assets/bill1.svg";
 import PaymentMethodButton from "../components/payment/PaymentMethodButton";
 import UPIPaymentPanel from "../components/payment/UPIPaymentPanel";
 import CardPaymentPanel from "../components/payment/CardPaymentPanel";
 import CashPaymentPanel from "../components/payment/CashPaymentPanel";
 import PaymentSuccessPage from "./PaymentSuccessPage";
+import scan from "../assets/scan.svg";
+import counter from "../assets/counter.svg";
 
 interface BillPageProps {
   onBack: () => void;
@@ -31,7 +32,7 @@ const BillPage: React.FC<BillPageProps> = ({
   tableNumber,
   orderNumber = "1234",
 }) => {
-  const { orderItems, getTotalPrice } = useOrder();
+  const { orderItems, getTotalPrice, clearOrder, resetPlacedOrder, markOrderPaid } = useOrder();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [paid, setPaid] = useState(false);
 
@@ -48,6 +49,7 @@ const BillPage: React.FC<BillPageProps> = ({
         const data = await res.json();
 
         if (data?.paid) {
+          markOrderPaid(orderNumber);
           setPaid(true);
           clearInterval(interval);
         }
@@ -57,7 +59,7 @@ const BillPage: React.FC<BillPageProps> = ({
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [paymentMethod, orderNumber, orderPlaced]);
+  }, [markOrderPaid, orderNumber, orderPlaced, paymentMethod]);
 
   const startPaymentRecord = async () => {
     try {
@@ -73,19 +75,17 @@ const BillPage: React.FC<BillPageProps> = ({
 
   if (paid) {
     return (
-<PaymentSuccessPage
-  orderNumber={orderNumber}
-  tableNumber={tableNumber}
-  onBack={() => {
-    setPaid(false);
-    setPaymentMethod(null);
-  }}
-  onViewChange={onViewChange}
-  orderItems={orderItems}
-  subtotal={subtotal}
-  gst={gst}
-  totalAmount={totalAmount}
-/>
+      <PaymentSuccessPage
+        orderNumber={orderNumber}
+        tableNumber={tableNumber}
+        onBack={() => {
+          clearOrder();
+          resetPlacedOrder();
+          setPaid(false);
+          setPaymentMethod(null);
+        }}
+        onViewChange={onViewChange}
+      />
     );
   }
 
@@ -94,9 +94,7 @@ const BillPage: React.FC<BillPageProps> = ({
       <UPIPaymentPanel
         orderNumber={orderNumber}
         tableNumber={tableNumber}
-        onBack={() => {
-          setPaymentMethod(null);
-        }}
+        onBack={() => setPaymentMethod(null)}
       />
     );
   }
@@ -113,6 +111,7 @@ const BillPage: React.FC<BillPageProps> = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tableNumber }),
           });
+          markOrderPaid(orderNumber);
           setPaid(true);
         }}
       />
@@ -161,7 +160,7 @@ const BillPage: React.FC<BillPageProps> = ({
               <div className="bg-white rounded-[28px] border border-orange-200 shadow-sm px-5 py-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-20 h-20 rounded-[22px] bg-white shadow-sm flex items-center justify-center mb-4">
-                    <img src={logo1} alt="logo" />
+                    <img src={bill1} alt="bill" />
                   </div>
 
                   <h2 className="text-lg font-semibold text-black">
@@ -176,43 +175,36 @@ const BillPage: React.FC<BillPageProps> = ({
                   <img src={bill1} alt="bill" />
                 </div>
 
-<div className=" pt-4 space-y-3">
-  {orderItems.length === 0 ? (
-    <p className="text-center text-gray-400 text-sm">
-      No items added yet
-    </p>
-  ) : (
-    <>
-      {/* Header Row */}
-      <div className="flex items-center justify-between border-b border-dashed border-gray-800">
-        <p className="text-xl text-gray font-medium w-1/2">Item</p>
-        <p className="text-xl text-gray font-medium w-1/4 text-center">Qty</p>
-        <p className="text-xl text-gray font-medium w-1/4 text-right">Price</p>
-      </div>
-      
-      {/* Items Rows */}
-      {orderItems.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center justify-between"
-        >
-          <p className="text-sm text-gray-800 w-1/2 ">{item.name}</p>
-          <p className="text-sm text-gray-600 w-1/4 text-center">{item.quantity}</p>
-          <div className="flex items-center justify-end gap-1 w-1/4">
-            <img
-              src={Ruppes}
-              alt="rupees"
-              className="w-3.5 h-3.5"
-            />
-            <span className="text-sm text-gray-800">
-              {(item.price * item.quantity).toLocaleString("en-IN")}
-            </span>
-          </div>
-        </div>
-      ))}
-    </>
-  )}
-</div>
+                <div className="pt-4 space-y-3">
+                  {orderItems.length === 0 ? (
+                    <p className="text-center text-gray-400 text-sm">
+                      No items added yet
+                    </p>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between border-b border-dashed border-gray-800">
+                        <p className="text-xl text-gray font-medium w-1/2">Item</p>
+                        <p className="text-xl text-gray font-medium w-1/4 text-center">Qty</p>
+                        <p className="text-xl text-gray font-medium w-1/4 text-right">Price</p>
+                      </div>
+
+                      {orderItems.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between">
+                          <p className="text-sm text-gray-800 w-1/2">{item.name}</p>
+                          <p className="text-sm text-gray-600 w-1/4 text-center">
+                            {item.quantity}
+                          </p>
+                          <div className="flex items-center justify-end gap-1 w-1/4">
+                            <img src={Ruppes} alt="rupees" className="w-3.5 h-3.5" />
+                            <span className="text-sm text-gray-800">
+                              {(item.price * item.quantity).toLocaleString("en-IN")}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
 
                 <div className="border-t border-dashed border-gray-300 mt-6 pt-4 space-y-4">
                   <div className="flex items-center justify-between">
@@ -254,7 +246,7 @@ const BillPage: React.FC<BillPageProps> = ({
 
                 <div className="space-y-4">
                   <PaymentMethodButton
-                    icon="QR"
+                    icon={scan}
                     label="UPI"
                     onClick={async () => {
                       setPaymentMethod("upi");
@@ -263,7 +255,7 @@ const BillPage: React.FC<BillPageProps> = ({
                   />
 
                   <PaymentMethodButton
-                    icon="CC"
+                    icon={scan}
                     label="Card"
                     onClick={async () => {
                       setPaymentMethod("card");
@@ -272,7 +264,7 @@ const BillPage: React.FC<BillPageProps> = ({
                   />
 
                   <PaymentMethodButton
-                    icon="₹"
+                    icon={counter}
                     label="Pay at Counter / Cash"
                     onClick={() => setPaymentMethod("cash")}
                   />

@@ -69,7 +69,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
   const dimensions = getCardDimensions();
 
   return (
-    <div className={`bg-[#F7F7F7] rounded-xl border border-[#C9C9C9] ${dimensions.container} ${className}`}>
+    <div className={`bg-white rounded-xl border border-[#C9C9C9] ${dimensions.container} ${className}`}>
       <div className="flex items-center gap-4">
         {/* Product Image - Only show if image exists */}
         {image && (
@@ -111,7 +111,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
           {/* Quantity Controller */}
 <div 
   onClick={(e) => e.stopPropagation()}
-  className="flex items-center gap-2 bg-[#F7F7F7] rounded-sm px-1 py-1 border border-gray-300 w-30 justify-between"
+  className="flex items-center gap-2 bg-white rounded-sm px-1 py-1 border border-gray-300 w-30 justify-between"
 >
   <button 
     onClick={() => onDecrement(id)}

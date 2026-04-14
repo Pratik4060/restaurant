@@ -5,6 +5,8 @@ import DetailsForm from './pages/DetailsForm';
 import Home from './pages/HomePage';
 import BreakfastDetails from './pages/BreakfastDetails';
 import LunchMenuDetails from './pages/LunchMenuDetails';
+import BillPage from './pages/BillPage';
+import TrackOrderPage from './pages/OrderTrackingPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import type { AppStep, UserData, MealCategory, FoodType } from './types';
 import { useOrder } from './contexts/OrderContext';
@@ -17,10 +19,12 @@ const getTableNumberFromUrl = (): string => {
 };
 
 const App: React.FC = () => {
-  const { clearOrder, resetPlacedOrder } = useOrder();
+  const { clearOrder, resetPlacedOrder, markOrderPaid } = useOrder();
   const params = new URLSearchParams(window.location.search);
 
   const isPaymentSuccess = params.get('payment') === 'success';
+  const paymentOrderNumber = params.get('order') || '1234';
+  const paymentView = params.get('view');
   const isQrEntry = params.has('table');
 
   const tableNumber = getTableNumberFromUrl();
@@ -45,6 +49,11 @@ const App: React.FC = () => {
     }
   }, [step]);
 
+  useEffect(() => {
+    if (!isPaymentSuccess) return;
+    markOrderPaid(paymentOrderNumber);
+  }, [isPaymentSuccess, markOrderPaid, paymentOrderNumber]);
+
   const handleFormSubmit = (data: UserData): void => {
     setUserData(data);
     setStep('home');
@@ -53,14 +62,55 @@ const App: React.FC = () => {
   const onScanSuccess = (): void => setStep('loading');
 
   if (isPaymentSuccess) {
+    const handlePaymentSuccessNav = (view: "menu" | "orders" | "track" | "bill") => {
+      const nextParams = new URLSearchParams(window.location.search);
+      nextParams.set("payment", "success");
+      nextParams.set("order", paymentOrderNumber);
+      nextParams.set("view", view);
+      window.location.search = nextParams.toString();
+    };
+
+    if (paymentView === "track") {
+      return (
+        <TrackOrderPage
+          onBack={() => handlePaymentSuccessNav("bill")}
+          onViewChange={handlePaymentSuccessNav}
+          orderPlaced={true}
+          orderNumber={paymentOrderNumber}
+          estimatedTime="15-20"
+          resetSignal={0}
+        />
+      );
+    }
+
+    if (paymentView === "bill") {
+      return (
+        <BillPage
+          onBack={() => {
+            const nextParams = new URLSearchParams(window.location.search);
+            nextParams.set("payment", "success");
+            nextParams.delete("view");
+            nextParams.set("order", paymentOrderNumber);
+            window.location.search = nextParams.toString();
+          }}
+          onViewChange={handlePaymentSuccessNav}
+          orderPlaced={true}
+          tableNumber={userData.table}
+          orderNumber={paymentOrderNumber}
+        />
+      );
+    }
+
     return (
       <PaymentSuccessPage
-        orderNumber={params.get('order') || '1234'}
+        orderNumber={paymentOrderNumber}
         tableNumber={userData.table}
         onBack={() => {
-          window.location.href = '/';
+          clearOrder();
+          resetPlacedOrder();
+          window.location.href = `/?table=${encodeURIComponent(tableNumber)}`;
         }}
-        onViewChange={() => {}}
+        onViewChange={handlePaymentSuccessNav}
       />
     );
   }
@@ -94,20 +144,22 @@ const App: React.FC = () => {
           category={selectedCategory}
           userName={userData.name}
           foodType={selectedFoodType}
+          tableNumber={userData.table}
           onBack={() => setStep('home')}
         />
       )}
 
       {step === 'menu' &&
         (selectedCategory === 'Lunch' || selectedCategory === 'Dinner') && (
-          <LunchMenuDetails
-            key={`${selectedCategory}-${selectedFoodType}`}
-            category={selectedCategory}
-            userName={userData.name}
-            foodType={selectedFoodType}
-            onBack={() => setStep('home')}
-          />
-        )}
+        <LunchMenuDetails
+          key={`${selectedCategory}-${selectedFoodType}`}
+          category={selectedCategory}
+          userName={userData.name}
+          foodType={selectedFoodType}
+          tableNumber={userData.table}
+          onBack={() => setStep('home')}
+        />
+      )}
     </div>
   );
 };

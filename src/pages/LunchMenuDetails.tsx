@@ -19,10 +19,11 @@ interface Props {
   category: MealCategory;
   userName: string;
   foodType: FoodType;
-    onBack: () => void;
+  tableNumber: string;
+  onBack: () => void;
 }
 
-const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack ,foodType}) => {
+const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack, foodType, tableNumber }) => {
   const { addToOrder, orderPlaced, orderNumber, placeOrder } =
     useOrder();
 
@@ -115,13 +116,13 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
   };
 
   const handleConfirmOrder = () => {
-    placeOrder();
+    placeOrder({ tableNumber });
     setTrackResetSignal((prev) => prev + 1);
     setCurrentView("track");
   };
 
   const handleTrackingFromDetail = () => {
-    placeOrder();
+    placeOrder({ tableNumber });
     setSelectedItem(null);
     setTrackResetSignal((prev) => prev + 1);
     setCurrentView("track");

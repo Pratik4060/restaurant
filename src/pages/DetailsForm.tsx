@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import logo from '../assets/logo.svg';
 import pizza from '../assets/pizza.svg';
 import food from '../assets/food.svg';
 import fish from '../assets/fish.svg';
@@ -8,7 +7,9 @@ import chicken from '../assets/chicken.svg';
 import dinner from '../assets/dinner.svg';
 import tea from '../assets/tea.svg';
 import type { UserData } from '../types';
-
+import milk from "../assets/milk.svg"
+import drink from "../assets/drink.svg"
+import smiley from "../assets/smiley.svg"
 interface Props {
   onSubmit: (data: UserData) => void;
   tableNumber: string;
@@ -78,28 +79,30 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
       : '';
 
   return (
-    <div className="relative min-h-screen w-full bg-[#fdfcfb] overflow-x-hidden">
+    <div className="relative min-h-screen w-full  overflow-x-hidden">
       {/* Background Icons - Sizes scaled up for Tablet */}
-      <div className="absolute inset-0 opacity-[0.35] text-[#8f8b84] pointer-events-none">
-        <img src={pizza} alt="pizza" className="absolute left-[2%] top-[4%] h-28 w-28 md:h-40 md:w-40 object-contain" />
+      <div className="absolute inset-0 opacity-[1.5] text-[#8f8b84] pointer-events-none">
+        <img src={pizza} alt="pizza" className="absolute  top-[%] h-38 w-38 object-contain" />
         <img src={food} alt="food" className="absolute right-[3%] top-[1%] h-28 w-28 md:h-40 md:w-40 object-contain" />
-        <img src={fish} alt="fish" className="absolute -right-4 bottom-[5%] h-36 w-36 md:h-52 md:w-52 object-contain" />
-        <img src={tea} alt="tea" className="absolute left-1/2 bottom-[3%] h-32 w-32 md:h-48 md:w-48 -translate-x-1/2 object-contain" />
-        <img src={dinner} alt="dinner" className="absolute left-[2%] bottom-[3%] h-28 w-28 md:h-40 md:w-40 object-contain" />
-        <img src={chicken} alt="chicken" className="absolute left-[2%] bottom-[15%] h-28 w-28 md:h-40 md:w-40 object-contain" />
+        <img src={fish} alt="fish" className="absolute right-[2%] bottom-[8%] h-26 w-26  object-contain" />
+        <img src={tea} alt="tea" className="absolute  bottom-[3%] h-28 w-28 left-[42%]" />
+        <img src={dinner} alt="dinner" className="absolute left-[2%] bottom-[1%] h-28 w-28 md:h-40 md:w-40 object-contain" />
+        <img src={chicken} alt="chicken" className="absolute left-[2%] bottom-[9%] h-35 w-35 object-contain" />
+        <img src={drink} alt ='drink' className="absolute right-[6%] top-[17%] h-35 w-35 object-contain"/>
+        <img src={smiley} alt ='smiley' className="absolute left-[3%] top-[20%] h-35 w-35 object-contain"/>
+        <img src={milk} alt ='milk'className="absolute right-[0%] top-[39%] h-35 w-35 object-contain"/>
+          
       </div>
 
       <div className="relative flex flex-col min-h-screen px-4 pt-6 pb-10 md:justify-center md:items-center">
         
         {/* Logo - Stays in corner on tablet */}
-        <div className="mb-6 md:absolute md:top-8 md:left-10">
-          <img src={logo} alt="Zohnix" className="h-20 w-20 md:h-28 md:w-28 object-contain" />
-        </div>
+
 
         <div className="flex flex-col items-center w-full">
           
           {/* Welcome Text - Larger on Tablet */}
-          <div className="mb-6 md:mb-10 text-center">
+          <div className="mb-6 mt-25 text-center">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-[#23160f]">
               Welcome
             </h1>
@@ -109,12 +112,11 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
           </div>
 
           {/* Form Card Section - INCREASED max-width and padding for Tablet */}
-          <div className="w-full max-w-[460px] md:max-w-[650px] rounded-[32px] md:rounded-[45px] border border-[#dfc6ae]/50 bg-gradient-to-b from-[#faf0e5]/95 to-[#f4e4d1]/95 p-6 md:p-12 shadow-2xl backdrop-blur-sm">
-            
+<div className="montserrat w-full max-w-[460px] md:max-w-[650px] rounded-[32px] md:rounded-[45px] border border-[#dfc6ae]/50 bg-[linear-gradient(156.24deg,rgba(254,222,222,0.28)_2.37%,rgba(221,131,11,0.28)_97.63%)] p-6 md:p-12 shadow-2xl backdrop-blur-sm">            
             <div className="space-y-4 md:space-y-8">
               {/* Full Name */}
               <div>
-                <label className="mb-1.5 md:mb-3 block text-xs md:text-sm font-bold uppercase tracking-wider text-[#7c6a5a] ml-1">
+                <label className="mb-1.5 md:mb-3 block text-md md:text-sm  text-black ml-1">
                   Full Name
                 </label>
                 <input
@@ -129,7 +131,7 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
 
               {/* Mobile Number */}
               <div>
-                <label className="mb-1.5 md:mb-3 block text-xs md:text-sm font-bold uppercase tracking-wider text-[#7c6a5a] ml-1">
+                <label className="mb-1.5 md:mb-3 block text-md  text-black ml-1">
                   Mobile Number
                 </label>
                 <input
@@ -144,7 +146,7 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
 
               {/* Number of Guests */}
               <div>
-                <label className="mb-1.5 md:mb-3 block text-xs md:text-sm font-bold uppercase tracking-wider text-[#7c6a5a] ml-1">
+                <label className="mb-1.5 md:mb-3 block text-md text-black ml-1">
                   Number of Guests
                 </label>
                 <div className="relative">
@@ -204,7 +206,7 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
 
               {/* Table Number */}
               <div>
-                <label className="mb-1.5 md:mb-3 block text-xs md:text-sm font-bold uppercase tracking-wider text-[#7c6a5a] ml-1">
+                <label className="mb-1.5 md:mb-3 block text-md  ml-1">
                   Table Number
                 </label>
                 <input
@@ -219,7 +221,7 @@ const DetailsForm: React.FC<Props> = ({ onSubmit, tableNumber }) => {
             <button
               type="button"
               onClick={handleSubmit}
-              className="mt-10 md:mt-14 w-full rounded-xl md:rounded-2xl bg-[#ffa321] py-4 md:py-6 text-base md:text-2xl font-bold text-[#1f140b] shadow-lg shadow-orange-200 transition active:scale-[0.98]"
+              className="mt-10 md:mt-14 w-full rounded-xl md:rounded-2xl bg-[linear-gradient(90deg,#BC9F76_0%,#64471E_100%)] py-4 md:py-6 text-base md:text-2xl  text-white shadow-lg shadow-orange-200 transition active:scale-[0.98]"
             >
               Start Order
             </button>

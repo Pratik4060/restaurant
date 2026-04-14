@@ -221,11 +221,14 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 <div className="fixed bottom-16 left-0 right-0 bg-white  border-gray-200 px-5 py-3 shadow-lg">
   <button 
     onClick={handleAddToOrder}
-    className="w-full bg-[#FCA128] text-black py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+    className="w-full bg-[linear-gradient(119.95deg,#BEA178_9.89%,#56390F_97.57%)] text-white py-3 rounded-lg font-semibold  flex items-center justify-center gap-2"
   >
     <span>{isAdded ? `Add To Order` : `Add to Order`}</span>
-    <img src={blackorder} alt="order" className="w-5 h-5 " />
-  </button>
+<img 
+  src={blackorder} 
+  alt="order" 
+  className="w-5 h-5 brightness-0 invert" 
+/>  </button>
 </div>
 
       {/* Bottom Navigation */}

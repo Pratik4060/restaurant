@@ -46,7 +46,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
 
   if (orderItems.length === 0) {
     return (
-      <div className="min-h-screen bg-[#ECECEC];
+      <div className="min-h-screen bg-white;
 ;
  flex flex-col">
         <div className="px-2 pt-9 pb-2 flex justify-between">
@@ -96,7 +96,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
   }
 
   return (
-    <div className="min-h-screen bg-[#ECECEC] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <div className="px-2 pt-9 pb-2 flex justify-between">
         <button onClick={onBack}>
           <img src={back} alt="back" />
@@ -117,7 +117,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
       </div>
 
       <div className="px-5 py-3">
-        <div className="relative w-full  bg-white rounded-xl">
+        <div className="relative w-full  bg-white rounded-md  border-b-1 border-gray-300">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 ">
             <img src={search} alt="search" className="w-4 h-4" />
           </span>
@@ -133,8 +133,8 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
       </div>
 
       <div className="px-7 py-6 ">
-        <div className="flex justify-start ">
-          <span className=" montserrat text-sm text-black font-semibold">{getTotalItems()} items</span>
+        <div className="flex justify-center ">
+          <span className=" montserrat text-md text-black font-semibold">{getTotalItems()} items</span>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
       </div>
 
 {/* Footer with GST and Total calculation */}
-      <div className=" montserrat fixed bottom-16 left-0 right-0 bg-[#F2F7FA] border-t-1 border-orange-400 rounded-t-[40px] px-10 py-6 ">
+      <div className=" montserrat fixed bottom-16 left-0 right-0 bg-white border-t-1 border-orange-400 rounded-t-[40px] px-10 py-6 ">
         
         {/* GST Section */}
         <div className="flex justify-between items-center mb-2">
@@ -168,10 +168,10 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
 
         {/* Total Section */}
         <div className="flex justify-between items-center mb-6 ">
-          <span className="text-black font-bold text-xl">Total</span>
+          <span className="text-black text-xl">Total</span>
           <div className="flex items-center gap-1 text-black">
             <img src={Ruppes} alt="₹" className="w-5 h-5" />
-            <span className="text-2xl font-extrabold">
+            <span className="text-2xl ">
               {(getTotalPrice() * 1.05).toLocaleString('en-IN')}
             </span>
           </div>
@@ -180,7 +180,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder,onViewChan
         {/* Confirm Order Button */}
         <button 
           onClick={handleConfirmClick}
-          className="w-full bg-[#FF9F29] text-black py-4 rounded-2xl font-semibold text-xl shadow-lg shadow-orange-100 active:scale-[0.98] transition-all"
+          className="w-full bg-[linear-gradient(90deg,#BC9F76_0%,#64471E_100%)] text-white py-4 rounded-xl font-semibold text-xl "
         >
           Confirm Order
         </button>
