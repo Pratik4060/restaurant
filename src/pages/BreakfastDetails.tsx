@@ -19,13 +19,19 @@ interface Props {
   category: MealCategory;
   userName: string;
   foodType: "Veg" | "Non Veg";
-  tableNumber:string
+  tableNumber:string;
+  initialFocus?: "default" | "bestseller" | "all" | "quick-bites" | "beverages";
   onBack: () => void;
 }
 
-const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType,tableNumber }) => {
+const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType,tableNumber, initialFocus = "default" }) => {
 const { orderPlaced, orderNumber, placeOrder } = useOrder();
-  const [activeTab, setActiveTab] = useState<BreakfastTab>('All');
+  const [activeTab, setActiveTab] = useState<BreakfastTab>(() => {
+    if (initialFocus === "bestseller") return "Bestseller";
+    if (initialFocus === "quick-bites") return "Quick Bites";
+    if (initialFocus === "beverages") return "Beverages";
+    return "All";
+  });
   const [activeBeverageTab, setActiveBeverageTab] = useState<BeverageTab>('All');
   const [activeHealthTab, setActiveHealthTab] = useState<HealthTab>('Veg');
   const [currentView, setCurrentView] = useState<"menu" | "orders" | "track" | "bill">('menu');

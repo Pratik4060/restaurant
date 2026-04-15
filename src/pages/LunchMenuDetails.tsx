@@ -20,15 +20,27 @@ interface Props {
   userName: string;
   foodType: FoodType;
   tableNumber: string;
+  initialFocus?: "default" | "bestseller" | "all" | "quick-bites" | "beverages";
   onBack: () => void;
 }
 
-const LunchMenuDetails: React.FC<Props> = ({ category, userName, onBack, foodType, tableNumber }) => {
+const LunchMenuDetails: React.FC<Props> = ({
+  category,
+  userName,
+  onBack,
+  foodType,
+  tableNumber,
+  initialFocus = "default",
+}) => {
   const { addToOrder, orderPlaced, orderNumber, placeOrder } =
     useOrder();
 
   const displayName = userName.trim() || "Rohit";
-  const [activeTab, setActiveTab] = useState<LunchTab>("All");
+  const [activeTab, setActiveTab] = useState<LunchTab>(() => {
+    if (initialFocus === "bestseller") return "Bestseller";
+    if (initialFocus === "beverages") return "Beverages";
+    return "All";
+  });
   const [activeBeverageTab, setActiveBeverageTab] =
     useState<BeverageTab>("All");
   const [currentView, setCurrentView] = useState<

@@ -41,6 +41,9 @@ const App: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<MealCategory>('Breakfast');
   const [selectedFoodType, setSelectedFoodType] = useState<FoodType>('Veg');
+  const [menuEntryPoint, setMenuEntryPoint] = useState<
+    'default' | 'bestseller' | 'all' | 'quick-bites' | 'beverages'
+  >('default');
 
   useEffect(() => {
     if (step === 'loading') {
@@ -132,7 +135,22 @@ const App: React.FC = () => {
           onSelect={(cat: MealCategory) => {
             clearOrder();
             resetPlacedOrder();
+            setMenuEntryPoint('default');
             setSelectedCategory(cat);
+            setStep('menu');
+          }}
+          onMostPopularSelect={(cat: MealCategory) => {
+            clearOrder();
+            resetPlacedOrder();
+            setMenuEntryPoint('bestseller');
+            setSelectedCategory(cat);
+            setStep('menu');
+          }}
+          onOfferSelect={({ category, focus }) => {
+            clearOrder();
+            resetPlacedOrder();
+            setMenuEntryPoint(focus);
+            setSelectedCategory(category);
             setStep('menu');
           }}
         />
@@ -140,11 +158,12 @@ const App: React.FC = () => {
 
       {step === 'menu' && selectedCategory === 'Breakfast' && (
         <BreakfastDetails
-          key={`${selectedCategory}-${selectedFoodType}`}
+          key={`${selectedCategory}-${selectedFoodType}-${menuEntryPoint}`}
           category={selectedCategory}
           userName={userData.name}
           foodType={selectedFoodType}
           tableNumber={userData.table}
+          initialFocus={menuEntryPoint}
           onBack={() => setStep('home')}
         />
       )}
@@ -152,11 +171,12 @@ const App: React.FC = () => {
       {step === 'menu' &&
         (selectedCategory === 'Lunch' || selectedCategory === 'Dinner') && (
         <LunchMenuDetails
-          key={`${selectedCategory}-${selectedFoodType}`}
+          key={`${selectedCategory}-${selectedFoodType}-${menuEntryPoint}`}
           category={selectedCategory}
           userName={userData.name}
           foodType={selectedFoodType}
           tableNumber={userData.table}
+          initialFocus={menuEntryPoint}
           onBack={() => setStep('home')}
         />
       )}

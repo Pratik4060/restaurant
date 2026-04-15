@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useMemo} from "react";
-import { Mic, Search } from "lucide-react";
+import { Clock3, MessageCircle, Mic, Phone, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo1 from "../assets/logo1.svg";
 import lunch from "../assets/lunch.svg";
@@ -34,6 +34,11 @@ interface HomePageProps {
   foodType: FoodType;
   onFoodTypeChange: (type: FoodType) => void;
   onSelect: (cat: MealCategory) => void;
+  onMostPopularSelect: (cat: MealCategory) => void;
+  onOfferSelect: (target: {
+    category: MealCategory;
+    focus: "all" | "quick-bites" | "beverages";
+  }) => void;
 }
 
 const OFFERS = [
@@ -113,10 +118,13 @@ const HomePage: React.FC<HomePageProps> = ({
   foodType,
   onFoodTypeChange,
   onSelect,
+  onMostPopularSelect,
+  onOfferSelect,
 }) => {
   const [currentOffer, setCurrentOffer] = useState(0);
 const [searchQuery, setSearchQuery] = useState("");
 const [selectedSearchItem, setSelectedSearchItem] = useState<HomeSearchItem | null>(null);
+const [showInfoModal, setShowInfoModal] = useState(false);
 
 const allSearchItems = useMemo<HomeSearchItem[]>(() => {
   return [
@@ -182,6 +190,19 @@ useEffect(() => {
     setCurrentMealIdx(0);
   }, [foodType]);
 
+  useEffect(() => {
+    if (!showInfoModal) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowInfoModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showInfoModal]);
+
 if (selectedSearchItem) {
   return (
     <ItemDetailPage
@@ -203,11 +224,94 @@ if (selectedSearchItem) {
   );
 }
 
+const handleOfferOrderNow = () => {
+  const offerTitle = OFFERS[currentOffer].title;
+
+  if (offerTitle === "Flat Discount") {
+    onOfferSelect({ category: currentMeal.category, focus: "all" });
+    return;
+  }
+
+  if (offerTitle === "Combo Offer") {
+    onOfferSelect({ category: "Breakfast", focus: "all" });
+    return;
+  }
+
+  if (offerTitle === "Quick Bite Deal") {
+    onOfferSelect({ category: "Breakfast", focus: "quick-bites" });
+    return;
+  }
+
+  onOfferSelect({ category: currentMeal.category, focus: "beverages" });
+};
+
 
 
 
     return (
       <div className="mx-auto max-w-[1100px] overflow-hidden  ">
+        {showInfoModal && (
+          <div
+            className="fixed inset-0 z-50 bg-black/35"
+            onClick={() => setShowInfoModal(false)}
+          >
+            <div
+              className="ml-4 mt-16 h-[78vh] w-[calc(100vw-2.5rem)] max-w-[335px] overflow-y-auto rounded-xl border border-[#d3d8f2] bg-[#f5f5f5] p-5 text-[#2a2a2a] shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              
+
+              <div className="space-y-6 text-[#2f2f2f]">
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Clock3 className="h-5 w-5" />
+                    <p className="playfair text-[1.75rem] leading-none">Restaurant Timing</p>
+                  </div>
+                  <div className="mb-3 border-b border-gray-300" />
+                  <ul className="space-y-3 text-[1.3rem] leading-tight">
+                    <li>- Opening Time: 7:00 AM</li>
+                    <li>- Closing Time: 11:30 PM</li>
+                    <li>- Breakfast: 7:00 AM - 11:00 AM</li>
+                    <li>- Lunch: 12:00 PM - 4:00 PM</li>
+                    <li>- Dinner: 7:00 PM - 11:30 PM</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    <p className="playfair text-[1.75rem] leading-none">Social Media Handles</p>
+                  </div>
+                  <div className="mb-3 border-b border-gray-300" />
+                  <ul className="space-y-3 text-[1.3rem] leading-tight">
+                    <li>
+                      Instagram: <span className="text-[#5aa3d8]">@zhonixkitchen</span>
+                    </li>
+                    <li>
+                      Facebook: <span className="text-[#5aa3d8]">Zhonix Kitchen Official</span>
+                    </li>
+                    <li>
+                      WhatsApp: <span className="text-[#5aa3d8]">+91 98765 43210</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Phone className="h-5 w-5" />
+                    <p className="playfair text-[1.75rem] leading-none">Contact Info</p>
+                  </div>
+                  <div className="mb-3 border-b border-gray-300" />
+                  <ul className="space-y-3 text-[1.3rem] leading-tight">
+                    <li>- Location: Pune, Maharashtra</li>
+                    <li>- Phone: +91 98765 43210</li>
+                    <li>- Email: support@zhonixkitchen.com</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* CHANGE 1: Add AnimatePresence and motion.div here */}
         <div className="mx-auto max-w-[1100px] overflow-hidden">
           {/* 
@@ -221,13 +325,17 @@ if (selectedSearchItem) {
           >
             {/* Header (Logo & Bell) stays static */}
             <div className="mb-2 flex items-center justify-between">
-              <div className="flex h-14 w-14 items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setShowInfoModal(true)}
+                className="flex h-14 w-14 items-center justify-center"
+              >
                 <img
                   src={logo1}
                   alt="Zohnix"
                   className="h-19 w-19 object-contain"
                 />
-              </div>
+              </button>
               <button>
                 <img src={bell} className="h-8 w-8" alt="notifications" />
               </button>
@@ -365,7 +473,11 @@ if (selectedSearchItem) {
                     <p className="max-w-[240px] text-sm leading-relaxed text-white/90">
                       {OFFERS[currentOffer].desc}
                     </p>
-                    <button className="mt-5 flex items-center gap-3 rounded-xl bg-[linear-gradient(90deg,#BC9F76_0%,#64471E_100%)] px-5 py-2 text-md  text-white ">
+                    <button
+                      type="button"
+                      onClick={handleOfferOrderNow}
+                      className="mt-5 flex items-center gap-3 rounded-xl bg-[linear-gradient(90deg,#BC9F76_0%,#64471E_100%)] px-5 py-2 text-md  text-white "
+                    >
                          <span className="mb-1">Order Now </span> 
                       <img  src = {arrow} alt= "arrow" className="h-4 w-6 object-contain mt-" />
                     </button> 
@@ -419,7 +531,13 @@ if (selectedSearchItem) {
               </div> Non Veg
             </button>
           </div>
-          <span className="rounded-full bg-black px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider">Most Popular</span>
+          <button
+            type="button"
+            onClick={() => onMostPopularSelect(currentMeal.category)}
+            className="rounded-full bg-black px-4 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider transition-transform hover:scale-105"
+          >
+            Most Popular
+          </button>
         </div>
 
         {/* Rolling Content Area */}
@@ -473,3 +591,4 @@ if (selectedSearchItem) {
 };
 
 export default HomePage;
+
