@@ -10,8 +10,14 @@ interface BottomNavProps {
   onViewChange: (view: 'menu' | 'orders' | 'track' | 'bill') => void;
 }
 
+type NavItem = {
+  id: BottomNavProps['activeView'];
+  img: string;
+  label: string;
+};
+
 const BottomNav: React.FC<BottomNavProps> = ({ activeView, onViewChange }) => {
-  const navItems = [
+  const navItems: NavItem[] = [
     { id: 'menu', img: menu, label: 'Menu' },
     { id: 'orders', img: orderfood1, label: 'Orders' },
     { id: 'track', img: track, label: 'Track' },
@@ -23,7 +29,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onViewChange }) => {
       {navItems.map((item) => (
         <button
           key={item.id}
-          onClick={() => onViewChange(item.id as any)}
+          type="button"
+          onClick={() => onViewChange(item.id)}
           className="flex flex-col items-center"
         >
 <span>

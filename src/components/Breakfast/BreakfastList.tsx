@@ -25,8 +25,8 @@ const normalizedQuery = searchQuery.trim().toLowerCase();
 const filteredItems = useMemo(() => {
   const baseItems = BreakfastItems.filter((item) => {
     if (item.category === "Beverages") return true;
+    if (item.category === "Health") return true;
     if (item.foodType) return item.foodType === foodType;
-    if (item.category === "Health") return item.subCategory === foodType;
     return foodType === "Veg";
   });
 

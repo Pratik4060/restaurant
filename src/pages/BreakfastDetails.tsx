@@ -122,7 +122,6 @@ if (currentView === "track") {
       orderPlaced={orderPlaced}
       orderNumber={orderNumber}
       estimatedTime="15-20"
-      resetSignal={trackResetSignal}
       onReadyComplete={() => setCurrentView("bill")}
     />
   );

@@ -1,4 +1,3 @@
-import fruitSaladBowl from '../../../assets/Breakfast/Health/FruitSalad.svg';
 import oatsBowl from '../../../assets/Breakfast/Health/oats.svg';
 import sproutsSalad from '../../../assets/Breakfast/Health/Sprouts.svg';
 import greenSmoothie from '../../../assets/Breakfast/Health/Green Smoothie.svg';
@@ -11,16 +10,6 @@ import chickenSandwich from '../../../assets/Breakfast/Health/chickensandwhich.s
 import type { BreakfastItem } from './BreakfastTypes';
 
 export const healthItems: BreakfastItem[] = [
-  {
-    id: 41,
-    name: 'Fruit Salad Bowl',
-    description: 'Fresh Seasonal Fruits Served With A Light Drizzle Of Honey',
-    price: 129,
-    image: fruitSaladBowl,
-    category: 'Health',
-    subCategory: 'Veg',
-    isBestseller: true,
-  },
   {
     id: 42,
     name: 'Oats Bowl',

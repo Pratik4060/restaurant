@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useOrder } from "../contexts/OrderContext";
 import type { MealCategory } from "../types";
 import BottomNav from "../components/BottomNav";
@@ -32,8 +32,7 @@ const LunchMenuDetails: React.FC<Props> = ({
   tableNumber,
   initialFocus = "default",
 }) => {
-  const { addToOrder, orderPlaced, orderNumber, placeOrder } =
-    useOrder();
+  const { orderPlaced, orderNumber, placeOrder } = useOrder();
 
   const displayName = userName.trim() || "Rohit";
   const [activeTab, setActiveTab] = useState<LunchTab>(() => {
@@ -76,7 +75,6 @@ const vegTabs: LunchTab[] = [
 const nonVegTabs: LunchTab[] = [
   "All",
   "Main Course",
-  "Starters",
   "Appetizer",
   "Rice",
   "Bestseller",
@@ -85,12 +83,8 @@ const nonVegTabs: LunchTab[] = [
 ];
 
 const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
-
-  useEffect(() => {
-    if (foodType === "Veg" && activeTab === "Appetizer") {
-      setActiveTab("All");
-    }
-  }, [activeTab, foodType]);
+const resolvedActiveTab =
+  foodType === "Veg" && activeTab === "Appetizer" ? "All" : activeTab;
 
   const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
     if (view === "track" && !orderPlaced) {
@@ -109,18 +103,6 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
 
     setCurrentView(view);
     setSelectedItem(null);
-  };
-
-  const handleAddToOrder = (item: LunchItem | BreakfastItem) => {
-    const orderItem = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image || "",
-    };
-
-    addToOrder(orderItem);
   };
 
   const handleItemClick = (item: LunchItem | BreakfastItem) => {
@@ -187,7 +169,6 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
       orderPlaced={orderPlaced}
       orderNumber={orderNumber}
       estimatedTime="15-20"
-      resetSignal={trackResetSignal}
       onReadyComplete={() => setCurrentView("bill")}
     />
   );
@@ -199,7 +180,7 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
         onBack={() => setCurrentView("menu")}
         onViewChange={handleNavChange}
         orderPlaced={orderPlaced}
-        tableNumber="12"
+        tableNumber={tableNumber}
         orderNumber={orderNumber || "1234"}
       />
     );
@@ -258,7 +239,7 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`text-[14px] whitespace-nowrap transition-all pb-1 ${
-                activeTab === tab
+                resolvedActiveTab === tab
                   ? "font-semibold border-b-2 border-black text-black"
                   : "text-gray-500"
               }`}
@@ -289,11 +270,10 @@ const tabs = foodType === "Non Veg" ? nonVegTabs : vegTabs;
 
       <div className="flex-1 px-5 py-4 pb-28 overflow-y-auto">
         <LunchList
-          activeTab={activeTab}
+          activeTab={resolvedActiveTab}
           activeBeverageTab={activeBeverageTab}
           foodType={foodType}
           searchQuery={searchQuery}
-          onAddToOrder={handleAddToOrder}
           onItemClick={handleItemClick}
         />
       </div>

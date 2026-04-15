@@ -81,7 +81,6 @@ const App: React.FC = () => {
           orderPlaced={true}
           orderNumber={paymentOrderNumber}
           estimatedTime="15-20"
-          resetSignal={0}
         />
       );
     }
@@ -129,7 +128,6 @@ const App: React.FC = () => {
 
       {step === 'home' && (
         <Home
-          user={userData}
           foodType={selectedFoodType}
           onFoodTypeChange={setSelectedFoodType}
           onSelect={(cat: MealCategory) => {

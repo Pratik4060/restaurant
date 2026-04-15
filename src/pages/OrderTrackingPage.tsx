@@ -11,7 +11,6 @@ interface TrackOrderPageProps {
   orderNumber?: string;
   estimatedTime?: string;
   onReadyComplete?: () => void;
-  resetSignal?: number;
 }
 
 const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
@@ -21,7 +20,6 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   orderNumber,
   estimatedTime = "15-20",
   onReadyComplete,
-  resetSignal,
 }) => {
   const { orderHistory, orderItems, getTotalPrice, updateOrderStatus } = useOrder();
   const [currentStep, setCurrentStep] = useState(0);
@@ -32,11 +30,6 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
     { id: 1, label: "Preparing" },
     { id: 2, label: "Ready" },
   ];
-
-  useEffect(() => {
-    setCurrentStep(0);
-    setAnimationStarted(false);
-  }, [resetSignal]);
 
   useEffect(() => {
     if (!orderPlaced || !orderNumber) return;
@@ -124,19 +117,16 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
         transition={{ duration: 0.5 }}
         className="border border-orange-200 rounded-[32px] p-5 shadow-sm bg-white"
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center justify-center gap-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
               Order #{liveOrder.orderNumber}
             </h2>
-            <p className="text-sm text-gray-500">
-              Table #{liveOrder.tableNumber} • {liveOrder.items.length} item
+            <p className="text-sm text-gray-500 flex justify-center">
+              {liveOrder.items.length} item
               {liveOrder.items.length === 1 ? "" : "s"}
             </p>
           </div>
-          <span className="rounded-full px-3 py-1 text-xs font-bold bg-green-100 text-green-700">
-            LIVE
-          </span>
         </div>
 
         <div className="mt-5 space-y-5">
@@ -207,12 +197,6 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
             );
           })}
 
-          <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
-            <span className="text-gray-500">Total</span>
-            <span className="font-bold text-gray-900">
-              ₹{liveOrder.totalAmount.toLocaleString("en-IN")}
-            </span>
-          </div>
         </div>
       </motion.div>
     );

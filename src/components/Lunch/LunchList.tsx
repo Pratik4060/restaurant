@@ -14,7 +14,6 @@ interface Props {
   activeBeverageTab: BeverageTab;
   foodType: FoodType
   searchQuery?: string;
-  onAddToOrder: (item: LunchItem | BreakfastItem) => void;
   onItemClick?: (item: LunchItem | BreakfastItem) => void;
 }
 
@@ -29,7 +28,7 @@ const normalizedQuery = searchQuery.trim().toLowerCase();
 
 const filteredItems = useMemo(() => {
   const lunchMealItems = LunchItems.filter(
-    (item) => (item.foodType ?? "Veg") === foodType,
+    (item) => item.category === "Dessert" || (item.foodType ?? "Veg") === foodType,
   );
 
   const searchFilteredItems = normalizedQuery
