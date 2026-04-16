@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import lunch from '../assets/lunch.svg';
 import Breakfast from '../assets/Breakfast.svg';
 import Dinner1 from '../assets/Dinner1.svg';
@@ -57,50 +57,16 @@ const OFFERS: HomeOffer[] = [
   },
 ];
 
-const VEG_MEAL_DATA: {
-  category: MealCategory;
-  img: string;
-  background: string;
-}[] = [
-  {
-    category: 'Breakfast',
-    img: Breakfast,
-    background:
-      'linear-gradient(160.72deg, rgba(184, 194, 177, 0.2) 31.81%, rgba(59, 105, 6, 0.2) 62.84%, rgba(181, 113, 22, 0.2) 95.75%)',
-  },
-  {
-    category: 'Lunch',
-    img: lunch,
-    background: 'linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)',
-  },
-  {
-    category: 'Dinner',
-    img: Dinner1,
-    background: 'linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)',
-  },
+const VEG_MEAL_DATA: { category: MealCategory; img: string; background: string }[] = [
+  { category: 'Breakfast', img: Breakfast, background: 'linear-gradient(160.72deg, rgba(184, 194, 177, 0.2) 31.81%, rgba(59, 105, 6, 0.2) 62.84%, rgba(181, 113, 22, 0.2) 95.75%)' },
+  { category: 'Lunch', img: lunch, background: 'linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)' },
+  { category: 'Dinner', img: Dinner1, background: 'linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)' },
 ];
 
-const NON_VEG_MEAL_DATA: {
-  category: MealCategory;
-  img: string;
-  background: string;
-}[] = [
-  {
-    category: 'Breakfast',
-    img: nonevegBreakfast,
-    background:
-      'linear-gradient(160.72deg, rgba(184, 194, 177, 0.2), rgba(255, 255, 255, 1))',
-  },
-  {
-    category: 'Lunch',
-    img: Lunch,
-    background: 'linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)',
-  },
-  {
-    category: 'Dinner',
-    img: Dinner,
-    background: 'linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)',
-  },
+const NON_VEG_MEAL_DATA: { category: MealCategory; img: string; background: string }[] = [
+  { category: 'Breakfast', img: nonevegBreakfast, background: 'linear-gradient(160.72deg, rgba(184, 194, 177, 0.2), rgba(255, 255, 255, 1))' },
+  { category: 'Lunch', img: Lunch, background: 'linear-gradient(147.71deg, #FCD9AB 37.7%, #D7F8CF 96.96%)' },
+  { category: 'Dinner', img: Dinner, background: 'linear-gradient(160.23deg, #FFFFFF 31.02%, #FFB69D 97.96%)' },
 ];
 
 const getInitialMealIndex = () => {
@@ -119,25 +85,18 @@ const HomePage: React.FC<HomePageProps> = ({
 }) => {
   const [currentOffer, setCurrentOffer] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSearchItem, setSelectedSearchItem] =
-    useState<HomeSearchItem | null>(null);
+  const [selectedSearchItem, setSelectedSearchItem] = useState<HomeSearchItem | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [currentMealIdx, setCurrentMealIdx] = useState(getInitialMealIndex);
+  const [isListening, setIsListening] = useState(false);
 
-  const activeMealData =
-    foodType === 'Veg' ? VEG_MEAL_DATA : NON_VEG_MEAL_DATA;
+  const activeMealData = foodType === 'Veg' ? VEG_MEAL_DATA : NON_VEG_MEAL_DATA;
   const currentMeal = activeMealData[currentMealIdx];
 
   const allSearchItems = useMemo<HomeSearchItem[]>(
     () => [
-      ...BreakfastItems.map((item) => ({
-        ...item,
-        source: 'Breakfast' as const,
-      })),
-      ...LunchItems.map((item) => ({
-        ...item,
-        source: 'Lunch' as const,
-      })),
+      ...BreakfastItems.map((item) => ({ ...item, source: 'Breakfast' as const })),
+      ...LunchItems.map((item) => ({ ...item, source: 'Lunch' as const })),
     ],
     [],
   );
@@ -145,66 +104,54 @@ const HomePage: React.FC<HomePageProps> = ({
   const searchResults = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
     if (!normalizedQuery) return [];
-
     return allSearchItems.filter((item) => {
       const text = `${item.name} ${item.description}`.toLowerCase();
       return text.includes(normalizedQuery);
     });
   }, [allSearchItems, searchQuery]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentOffer((prev) => (prev + 1) % OFFERS.length);
-    }, 4000);
+  // VOICE SEARCH LOGIC
+  const startVoiceSearch = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Your browser does not support voice search. Please use Google Chrome.");
+      return;
+    }
 
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+    };
+
+    recognition.start();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentOffer((prev) => (prev + 1) % OFFERS.length), 4000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentMealIdx((prev) => (prev + 1) % activeMealData.length);
-    }, 5000);
-
+    const timer = setInterval(() => setCurrentMealIdx((prev) => (prev + 1) % activeMealData.length), 5000);
     return () => clearInterval(timer);
   }, [activeMealData.length]);
 
-  useEffect(() => {
-    if (!showInfoModal) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setShowInfoModal(false);
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [showInfoModal]);
-
   const handleOfferOrderNow = () => {
     const offerTitle = OFFERS[currentOffer].title;
-
-    if (offerTitle === 'Flat Discount') {
-      onOfferSelect({ category: currentMeal.category, focus: 'all' });
-      return;
-    }
-
-    if (offerTitle === 'Combo Offer') {
-      onOfferSelect({ category: 'Breakfast', focus: 'all' });
-      return;
-    }
-
-    if (offerTitle === 'Quick Bite Deal') {
-      onOfferSelect({ category: 'Breakfast', focus: 'quick-bites' });
-      return;
-    }
-
+    if (offerTitle === 'Flat Discount') return onOfferSelect({ category: currentMeal.category, focus: 'all' });
+    if (offerTitle === 'Combo Offer') return onOfferSelect({ category: 'Breakfast', focus: 'all' });
+    if (offerTitle === 'Quick Bite Deal') return onOfferSelect({ category: 'Breakfast', focus: 'quick-bites' });
     onOfferSelect({ category: currentMeal.category, focus: 'beverages' });
-  };
-
-  const handleFoodTypeChange = (type: FoodType) => {
-    setCurrentMealIdx(0);
-    onFoodTypeChange(type);
   };
 
   if (selectedSearchItem) {
@@ -230,9 +177,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <div className="mx-auto max-w-[1100px] overflow-hidden">
-      {showInfoModal && (
-        <HomeInfoModal onClose={() => setShowInfoModal(false)} />
-      )}
+      {showInfoModal && <HomeInfoModal onClose={() => setShowInfoModal(false)} />}
 
       <div className="mx-auto max-w-[1100px] overflow-hidden">
         <HomeOfferCarousel
@@ -247,13 +192,15 @@ const HomePage: React.FC<HomePageProps> = ({
             onSearchQueryChange={setSearchQuery}
             searchResults={searchResults}
             onSelectItem={setSelectedSearchItem}
+            isListening={isListening}
+            onVoiceClick={startVoiceSearch}
           />
         </HomeOfferCarousel>
 
         <HomeMealHero
           foodType={foodType}
           currentMeal={currentMeal}
-          onFoodTypeChange={handleFoodTypeChange}
+          onFoodTypeChange={(type) => { setCurrentMealIdx(0); onFoodTypeChange(type); }}
           onMostPopularSelect={onMostPopularSelect}
           onSelect={onSelect}
         />

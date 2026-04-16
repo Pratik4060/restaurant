@@ -1,5 +1,4 @@
-// BreakfastDetails.tsx (Complete updated version)
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useOrder } from '../contexts/OrderContext';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuList from '../components/Breakfast/BreakfastList';
@@ -24,8 +23,8 @@ interface Props {
   onBack: () => void;
 }
 
-const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack,foodType,tableNumber, initialFocus = "default" }) => {
-const { orderPlaced, orderNumber, placeOrder } = useOrder();
+const BreakfastDetails: React.FC<Props> = ({ category, userName, onBack, foodType, tableNumber, initialFocus = "default" }) => {
+  const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [activeTab, setActiveTab] = useState<BreakfastTab>(() => {
     if (initialFocus === "bestseller") return "Bestseller";
     if (initialFocus === "quick-bites") return "Quick Bites";
@@ -38,42 +37,69 @@ const { orderPlaced, orderNumber, placeOrder } = useOrder();
   const [trackResetSignal, setTrackResetSignal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<BreakfastItem | null>(null);
-
   
+  // Voice State
+  const [isListening, setIsListening] = useState(false);
+
   const displayName = userName.trim() || 'Rohit';
   const beverageTabs: BeverageTab[] = ['All', 'Mocktails', 'Cocktails', 'Spirits', 'Beer', 'Wine', 'Hot Beverages', 'Fresh Juice'];
   const healthTabs: HealthTab[] = ['Veg', 'Non Veg'];
+
+  // VOICE SEARCH LOGIC
+  const startVoiceSearch = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Your browser does not support voice search. Please use Google Chrome.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+    };
+
+    recognition.start();
+  }, []);
 
   const handleItemClick = (item: BreakfastItem) => {
     setSelectedItem(item);
   };
 
-const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
-  if (view === 'track' && !orderPlaced) {
-    setCurrentView('track');
-    return;
-  }
-  if (view === "track") {
+  const handleNavChange = (view: "menu" | "orders" | "track" | "bill") => {
+    if (view === 'track' && !orderPlaced) {
+      setCurrentView('track');
+      return;
+    }
+    if (view === "track") {
+      setTrackResetSignal((prev) => prev + 1);
+    }
+    setCurrentView(view);
+    setSelectedItem(null);
+  };
+
+  const handleConfirmOrder = () => {
+    placeOrder({ tableNumber });
     setTrackResetSignal((prev) => prev + 1);
-  }
-  setCurrentView(view);
-  setSelectedItem(null);
-};
+    setCurrentView("track");
+  };
 
-const handleConfirmOrder = () => {
-  placeOrder({ tableNumber });
-  setTrackResetSignal((prev) => prev + 1);
-  setCurrentView("track");
-};
+  const handleTrackingFromDetail = () => {
+    placeOrder({ tableNumber });
+    setSelectedItem(null);
+    setTrackResetSignal((prev) => prev + 1);
+    setCurrentView("track");
+  };
 
-const handleTrackingFromDetail = () => {
-  placeOrder({ tableNumber });
-  setSelectedItem(null);
-  setTrackResetSignal((prev) => prev + 1);
-  setCurrentView("track");
-};
-
-  // Show Item Detail Page when an item is selected
   if (selectedItem) {
     return (
       <ItemDetailPage
@@ -101,45 +127,41 @@ const handleTrackingFromDetail = () => {
     );
   }
 
-  // Show Order Page when 'orders' is active
   if (currentView === 'orders') {
     return (
-<OrderPage 
-  onBack={() => setCurrentView('menu')}
-  onConfirmOrder={handleConfirmOrder}
-  onViewChange={handleNavChange}
-/>
+      <OrderPage 
+        onBack={() => setCurrentView('menu')}
+        onConfirmOrder={handleConfirmOrder}
+        onViewChange={handleNavChange}
+      />
     );
   }
 
-  // Show Track Order Page when 'track' is active
-if (currentView === "track") {
-  return (
-    <TrackOrderPage
-      key={trackResetSignal}
-      onBack={() => setCurrentView("menu")}
-      onViewChange={handleNavChange}
-      orderPlaced={orderPlaced}
-      orderNumber={orderNumber}
-      estimatedTime="15-20"
-      onReadyComplete={() => setCurrentView("bill")}
-    />
-  );
+  if (currentView === "track") {
+    return (
+      <TrackOrderPage
+        key={trackResetSignal}
+        onBack={() => setCurrentView("menu")}
+        onViewChange={handleNavChange}
+        orderPlaced={orderPlaced}
+        orderNumber={orderNumber}
+        estimatedTime="15-20"
+        onReadyComplete={() => setCurrentView("bill")}
+      />
+    );
   }
 
-
-if (currentView === "bill") {
-  return (
-    <BillPage
-      onBack={() => setCurrentView("menu")}
-      onViewChange={handleNavChange}
-      orderPlaced={orderPlaced}
-      tableNumber={tableNumber}
-      orderNumber={orderNumber || "1234"}
-    />
-  );
-}
-
+  if (currentView === "bill") {
+    return (
+      <BillPage
+        onBack={() => setCurrentView("menu")}
+        onViewChange={handleNavChange}
+        orderPlaced={orderPlaced}
+        tableNumber={tableNumber}
+        orderNumber={orderNumber || "1234"}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -168,6 +190,7 @@ if (currentView === "bill") {
         </h3>
       </div>
 
+      {/* Search Input with Voice functionality */}
       <div className="px-5 py-3">
         <div className="relative w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -177,12 +200,24 @@ if (currentView === "bill") {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search dishes"
-            className="w-full border-b py-2 pl-10 pr-10 text-sm"
+            placeholder={isListening ? "Listening..." : "Search dishes"}
+            className={`w-full border-b py-2 pl-10 pr-10 text-sm outline-none transition-colors ${isListening ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
-            <img src={microphone} alt="microphone" className="w-4 h-4" />
-          </span>
+          
+          {/* Voice Button */}
+          <button 
+            onClick={startVoiceSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full overflow-hidden"
+          >
+            <img 
+              src={microphone} 
+              alt="microphone" 
+              className={`w-4 h-4 transition-transform ${isListening ? 'scale-125 animate-bounce' : ''}`} 
+            />
+            {isListening && (
+              <div className="absolute inset-0 bg-orange-200 animate-ping opacity-30 rounded-full"></div>
+            )}
+          </button>
         </div>
       </div>
 

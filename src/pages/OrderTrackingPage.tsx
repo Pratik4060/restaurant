@@ -21,7 +21,7 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   estimatedTime = "15-20",
   onReadyComplete,
 }) => {
-  const { orderHistory, orderItems, getTotalPrice, updateOrderStatus } = useOrder();
+  const { orderHistory, orderItems, getTotalPrice, getTotalItems, updateOrderStatus } = useOrder();
   const [currentStep, setCurrentStep] = useState(0);
   const [animationStarted, setAnimationStarted] = useState(false);
 
@@ -74,12 +74,29 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   const currentOrder = orderHistory.find((entry) => entry.orderNumber === orderNumber);
   const isCurrentOrderPaid = currentOrder?.status === "paid";
 
+  // Get items count - ALWAYS use current orderItems for live count
+  const getItemsCount = () => {
+    // If order is not placed yet, show current items count
+    if (!orderPlaced) {
+      return getTotalItems();
+    }
+    // If order is placed but not paid, show current items count
+    if (orderPlaced && !isCurrentOrderPaid) {
+      return getTotalItems();
+    }
+    // Fallback to order history if needed
+    if (currentOrder && currentOrder.items) {
+      return currentOrder.items.reduce((total, item) => total + item.quantity, 0);
+    }
+    return getTotalItems();
+  };
+
   const liveOrder =
     orderPlaced && orderNumber && !isCurrentOrderPaid
-      ? currentOrder ?? {
+      ? {
           orderNumber,
-          tableNumber: "12",
-          items: orderItems,
+          tableNumber: currentOrder?.tableNumber || "12",
+          items: orderItems, // Use live orderItems instead of history
           subtotal: getTotalPrice(),
           gst: Math.round(getTotalPrice() * 0.05),
           totalAmount: Math.round(getTotalPrice() * 1.05),
@@ -89,7 +106,7 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
               : currentStep === 1
                 ? "preparing"
                 : "ready",
-          createdAt: new Date().toISOString(),
+          createdAt: currentOrder?.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
       : null;
@@ -110,6 +127,8 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   const renderLiveCard = () => {
     if (!liveOrder) return null;
 
+    const itemsCount = getItemsCount();
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -120,11 +139,10 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
         <div className="flex items-center justify-center gap-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
-              Order #{liveOrder.orderNumber}
+              Order {liveOrder.orderNumber}
             </h2>
             <p className="text-sm text-gray-500 flex justify-center">
-              {liveOrder.items.length} item
-              {liveOrder.items.length === 1 ? "" : "s"}
+              {itemsCount} item{itemsCount === 1 ? "" : "s"}
             </p>
           </div>
         </div>
@@ -196,7 +214,6 @@ const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
               </div>
             );
           })}
-
         </div>
       </motion.div>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useCallback} from "react";
 import { useOrder } from "../contexts/OrderContext";
 import type { MealCategory } from "../types";
 import BottomNav from "../components/BottomNav";
@@ -50,6 +50,7 @@ const LunchMenuDetails: React.FC<Props> = ({
   const [selectedItem, setSelectedItem] = useState<
     LunchItem | BreakfastItem | null
   >(null);
+  const [isListening, setIsListening] = useState(false);
 
   const beverageTabs: BeverageTab[] = [
     "All",
@@ -121,6 +122,30 @@ const resolvedActiveTab =
     setTrackResetSignal((prev) => prev + 1);
     setCurrentView("track");
   };
+    const startVoiceSearch = useCallback(() => {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        alert("Your browser does not support voice search. Please use Google Chrome.");
+        return;
+      }
+  
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+  
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setSearchQuery(transcript);
+      };
+  
+      recognition.start();
+    }, []);
 
   if (selectedItem) {
     return (
@@ -222,13 +247,23 @@ const resolvedActiveTab =
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search dishes"
+           placeholder={isListening ? "Listening..." : "Search dishes"}
             className="w-full border-b py-2 pl-10 pr-10 text-sm outline-none"
           />
 
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
-            <img src={microphone} alt="microphone" className="w-4 h-4" />
-          </span>
+          <button 
+            onClick={startVoiceSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full overflow-hidden"
+          >
+            <img 
+              src={microphone} 
+              alt="microphone" 
+              className={`w-4 h-4 transition-transform ${isListening ? 'scale-125 animate-bounce' : ''}`} 
+            />
+            {isListening && (
+              <div className="absolute inset-0 bg-orange-200 animate-ping opacity-30 rounded-full"></div>
+            )}
+          </button>
         </div>
       </div>
 

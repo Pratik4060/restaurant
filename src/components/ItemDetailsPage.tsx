@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Star, Minus, Plus } from 'lucide-react';
+// Added Heart to the imports from lucide-react
+import { Star, Minus, Plus, Heart } from 'lucide-react'; 
 import { useOrder } from '../contexts/OrderContext';
 import BottomNav from './BottomNav';
 import Ruppes from '../assets/Ruppes.svg';
@@ -7,7 +8,7 @@ import back from '../assets/back.svg';
 import alarm from '../assets/alarm-clock 1.svg';
 import bell1 from '../assets/bell1.svg';
 import blackorder from '../assets/BlackOrder.svg';
-import heart from '../assets/heart.svg';
+// import heart from '../assets/heart.svg'; // We can comment this out and use the Lucide icon for better control
 
 interface ItemDetailPageProps {
   item: {
@@ -38,6 +39,10 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 }) => {
   const { addToOrder, updateQuantity, getItemQuantity } = useOrder();
   const [draftQuantity, setDraftQuantity] = useState(1);
+  
+  // 1. Added state for the Like button
+  const [isLiked, setIsLiked] = useState(false);
+
   const currentQuantity = getItemQuantity(item.id);
   const quantity = currentQuantity > 0 ? currentQuantity : draftQuantity;
 
@@ -94,7 +99,7 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
       });
     }
 
-    onNavigateToTracking?.();
+    onNavigateToOrders?.();
   };
 
   const isAdded = currentQuantity > 0;
@@ -105,12 +110,28 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
         <button onClick={onBack} className="text-2xl font-medium">
           <img src={back} alt="back" />
         </button>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <div className="relative">
-            <button type="button" className="text-xl flex gap-4">
-              <img src={heart} alt="heart" />
-              <img src={bell1} alt="notifications" />
-            </button>
+            <div className="flex gap-4 items-center">
+              
+              {/* 2. Updated Heart Button Logic */}
+              <button 
+                type="button" 
+                onClick={() => setIsLiked(!isLiked)}
+                className="transition-transform active:scale-125 duration-200"
+              >
+                <Heart 
+                  size={24} 
+                  className={`transition-colors duration-300 ${
+                    isLiked ? 'text-red-500 fill-red-500' : 'text-gray-600'
+                  }`} 
+                />
+              </button>
+
+              <button type="button">
+                <img src={bell1} alt="notifications" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -207,7 +228,7 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           onClick={handleAddToOrder}
           className="w-full bg-[linear-gradient(119.95deg,#BEA178_9.89%,#56390F_97.57%)] text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
         >
-          <span>{isAdded ? 'Update Order' : 'Add to Order'}</span>
+          <span>{isAdded ? 'Add to Order' : 'Add to Order'}</span>
           <img
             src={blackorder}
             alt="order"
