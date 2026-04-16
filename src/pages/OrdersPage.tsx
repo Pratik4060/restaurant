@@ -16,7 +16,7 @@ interface OrderPageProps {
 }
 
 const OrderPage: React.FC<OrderPageProps> = ({ onBack, onConfirmOrder, onViewChange }) => {
-  const { orderItems, updateQuantity, removeItem, getTotalPrice, getTotalItems } = useOrder();
+  const { orderItems, updateQuantity, removeItem, getTotalPrice } = useOrder();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Filter order items based on search query
