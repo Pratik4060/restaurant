@@ -145,7 +145,6 @@ const BillPage: React.FC<BillPageProps> = ({
         </button>
       </div>
 
-      {/* Changed max-width to full to take full width on iPad Pro */}
       <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-28">
         <div className="max-w-full mx-auto"> 
           {!orderPlaced ? (
@@ -158,7 +157,6 @@ const BillPage: React.FC<BillPageProps> = ({
               </p>
             </div>
           ) : (
-            /* Changed from 'grid lg:grid-cols-2' to 'flex flex-col' for stacked cards */
             <div className="flex flex-col gap-6"> 
               {/* Order Summary Section */}
               <div className="bg-white rounded-[32px] border border-orange-200 shadow-sm px-6 py-8 w-full">
@@ -215,7 +213,7 @@ const BillPage: React.FC<BillPageProps> = ({
                 <div className="border-t border-dashed border-gray-300 mt-8 pt-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-base md:text-lg text-gray-700">Subtotal</span>
-                    <div className="flex items-center gap-1.5 text-base md:text-lg text-gray-700">
+                    <div className="flex items-center justify-end gap-2 text-base md:text-lg text-gray-700 w-1/4">
                       <img src={Ruppes} alt="rupees" className="w-4 h-4 md:w-5 md:h-5" />
                       <span>{subtotal.toLocaleString("en-IN")}</span>
                     </div>
@@ -223,7 +221,7 @@ const BillPage: React.FC<BillPageProps> = ({
 
                   <div className="flex items-center justify-between">
                     <span className="text-base md:text-lg text-gray-700">GST (5%)</span>
-                    <div className="flex items-center gap-1.5 text-base md:text-lg text-gray-500">
+                    <div className="flex items-center justify-end gap-2 text-base md:text-lg text-gray-500 w-1/4">
                       <img
                         src={Ruppes}
                         alt="rupees"
@@ -237,15 +235,16 @@ const BillPage: React.FC<BillPageProps> = ({
                     <span className="text-xl md:text-2xl font-bold text-[#18B65B]">
                       Total Amount
                     </span>
-                    <div className="flex items-center gap-1.5 text-xl md:text-2xl font-bold text-[#18B65B]">
-                      <img src={Ruppes} alt="rupees" className="w-5 h-5 md:w-6 md:h-6" />
+                    {/* Adjusted gap and icon sizing to match vertical alignment of items above */}
+                    <div className="flex items-center justify-end gap-1.5 text-xl md:text-2xl font-bold text-[#18B65B] w-1/4">
+                      <img src={Ruppes} alt="rupees" className="w-4 h-4 md:w-5 md:h-5 mb-0.5" />
                       <span>{totalAmount.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Payment Methods Section - Taking full width */}
+              {/* Payment Methods Section */}
               <div className="bg-white rounded-[32px] px-6 py-8 border border-gray-100 shadow-sm w-full">
                 <h3 className="text-xl md:text-2xl font-bold text-black mb-6">
                   Select Payment Method
