@@ -176,35 +176,33 @@ const HomePage: React.FC<HomePageProps> = ({
   }
 
   return (
-    <div className="mx-auto max-w-[1100px] overflow-hidden">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1100px] flex-col overflow-hidden">
       {showInfoModal && <HomeInfoModal onClose={() => setShowInfoModal(false)} />}
 
-      <div className="mx-auto max-w-[1100px] overflow-hidden">
-        <HomeOfferCarousel
-          offers={OFFERS}
-          currentOffer={currentOffer}
-          onOfferChange={setCurrentOffer}
-          onInfoOpen={() => setShowInfoModal(true)}
-          onOrderNow={handleOfferOrderNow}
-        >
-          <HomeSearchPanel
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-            searchResults={searchResults}
-            onSelectItem={setSelectedSearchItem}
-            isListening={isListening}
-            onVoiceClick={startVoiceSearch}
-          />
-        </HomeOfferCarousel>
-
-        <HomeMealHero
-          foodType={foodType}
-          currentMeal={currentMeal}
-          onFoodTypeChange={(type) => { setCurrentMealIdx(0); onFoodTypeChange(type); }}
-          onMostPopularSelect={onMostPopularSelect}
-          onSelect={onSelect}
+      <HomeOfferCarousel
+        offers={OFFERS}
+        currentOffer={currentOffer}
+        onOfferChange={setCurrentOffer}
+        onInfoOpen={() => setShowInfoModal(true)}
+        onOrderNow={handleOfferOrderNow}
+      >
+        <HomeSearchPanel
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          searchResults={searchResults}
+          onSelectItem={setSelectedSearchItem}
+          isListening={isListening}
+          onVoiceClick={startVoiceSearch}
         />
-      </div>
+      </HomeOfferCarousel>
+
+      <HomeMealHero
+        foodType={foodType}
+        currentMeal={currentMeal}
+        onFoodTypeChange={(type) => { setCurrentMealIdx(0); onFoodTypeChange(type); }}
+        onMostPopularSelect={onMostPopularSelect}
+        onSelect={onSelect}
+      />
     </div>
   );
 };

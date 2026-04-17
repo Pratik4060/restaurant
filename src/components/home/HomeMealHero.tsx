@@ -28,7 +28,7 @@ const HomeMealHero: React.FC<HomeMealHeroProps> = ({
     <motion.div
       animate={{ background: currentMeal.background }}
       transition={{ duration: 1.2, ease: "linear" }}
-      className="min-h-[550px] px-6 py-8"
+      className="flex min-h-[550px] flex-1 flex-col px-6 py-8"
     >
       <div className="mb-8 flex items-center justify-between">
         <div className="flex gap-6">
