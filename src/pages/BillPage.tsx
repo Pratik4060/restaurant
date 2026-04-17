@@ -130,118 +130,125 @@ const BillPage: React.FC<BillPageProps> = ({
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] flex flex-col">
-      <div className="px-4 pt-12 pb-4 flex justify-between items-center">
-        <button onClick={onBack} className="p-1">
-          <ChevronLeft size={28} className="text-gray-700" />
+      {/* Header - iPad optimized */}
+      <div className="px-6 md:px-8 pt-12 pb-4 flex justify-between items-center">
+        <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <ChevronLeft size={32} className="text-gray-700 md:w-8 md:h-8" />
         </button>
 
-        <h1 className="text-[24px] font-semibold text-black border-b-4 border-orange-400 pb-1">
+        <h1 className="text-[28px] md:text-[32px] font-semibold text-black border-b-4 border-orange-400 pb-2">
           Payment
         </h1>
 
-        <button className="p-1">
-          <img src={bell} alt="bell" className="h-6 w-6 invert" />
+        <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <img src={bell} alt="bell" className="h-7 w-7 md:h-8 md:w-8 invert" />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-28">
-        <div className="max-w-sm mx-auto">
+      {/* Changed max-width to full to take full width on iPad Pro */}
+      <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-28">
+        <div className="max-w-full mx-auto"> 
           {!orderPlaced ? (
-            <div className="bg-white rounded-[28px] border border-orange-200 shadow-sm px-5 py-10 mt-16 text-center">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="bg-white rounded-[32px] border border-orange-200 shadow-sm px-6 py-12 mt-16 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 No bill available
               </h2>
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-base md:text-lg text-gray-500 font-medium">
                 Place an order first to view the bill.
               </p>
             </div>
           ) : (
-            <>
-              <div className="bg-white rounded-[28px] border border-orange-200 shadow-sm px-5 py-6">
+            /* Changed from 'grid lg:grid-cols-2' to 'flex flex-col' for stacked cards */
+            <div className="flex flex-col gap-6"> 
+              {/* Order Summary Section */}
+              <div className="bg-white rounded-[32px] border border-orange-200 shadow-sm px-6 py-8 w-full">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-[22px] bg-white shadow-sm flex items-center justify-center mb-4">
-                    <img src={bill1} alt="bill" />
+                  <div className="w-24 h-24 rounded-[28px] bg-white shadow-md flex items-center justify-center mb-4">
+                    <img src={bill1} alt="bill" className="w-12 h-12" />
                   </div>
 
-                  <h2 className="text-lg font-semibold text-black">
+                  <h2 className="text-xl md:text-2xl font-semibold text-black">
                     Order Summary
                   </h2>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Order #{orderNumber} - Table #{tableNumber}
+                  <p className="text-base text-gray-400 mt-2">
+                    Order {orderNumber} - Table {tableNumber}
                   </p>
                 </div>
 
-                <div className="my-6 flex justify-center">
-                  <img src={bill1} alt="bill" />
+                <div className="my-8 flex justify-center">
+                  <img src={bill1} alt="bill" className="w-16 h-16" />
                 </div>
 
-                <div className="pt-4 space-y-3">
+                <div className="pt-6 space-y-4">
                   {orderItems.length === 0 ? (
-                    <p className="text-center text-gray-400 text-sm">
+                    <p className="text-center text-gray-400 text-base">
                       No items added yet
                     </p>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between border-b border-dashed border-gray-800">
-                        <p className="text-xl text-gray font-medium w-1/2">Item</p>
-                        <p className="text-xl text-gray font-medium w-1/4 text-center">Qty</p>
-                        <p className="text-xl text-gray font-medium w-1/4 text-right">Price</p>
+                      <div className="flex items-center justify-between border-b border-dashed border-gray-300 pb-3">
+                        <p className="text-lg md:text-xl font-semibold text-gray-800 w-1/2">Item</p>
+                        <p className="text-lg md:text-xl font-semibold text-gray-800 w-1/4 text-center">Qty</p>
+                        <p className="text-lg md:text-xl font-semibold text-gray-800 w-1/4 text-right">Price</p>
                       </div>
 
-                      {orderItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between">
-                          <p className="text-sm text-gray-800 w-1/2">{item.name}</p>
-                          <p className="text-sm text-gray-600 w-1/4 text-center">
-                            {item.quantity}
-                          </p>
-                          <div className="flex items-center justify-end gap-1 w-1/4">
-                            <img src={Ruppes} alt="rupees" className="w-3.5 h-3.5" />
-                            <span className="text-sm text-gray-800">
-                              {(item.price * item.quantity).toLocaleString("en-IN")}
-                            </span>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {orderItems.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between py-2">
+                            <p className="text-base md:text-lg text-gray-800 w-1/2">{item.name}</p>
+                            <p className="text-base md:text-lg text-gray-600 w-1/4 text-center">
+                              {item.quantity}
+                            </p>
+                            <div className="flex items-center justify-end gap-1.5 w-1/4">
+                              <img src={Ruppes} alt="rupees" className="w-4 h-4 md:w-5 md:h-5" />
+                              <span className="text-base md:text-lg text-gray-800">
+                                {(item.price * item.quantity).toLocaleString("en-IN")}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </>
                   )}
                 </div>
 
-                <div className="border-t border-dashed border-gray-300 mt-6 pt-4 space-y-4">
+                <div className="border-t border-dashed border-gray-300 mt-8 pt-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Subtotal</span>
-                    <div className="flex items-center gap-1 text-sm text-gray-700">
-                      <img src={Ruppes} alt="rupees" className="w-3.5 h-3.5" />
+                    <span className="text-base md:text-lg text-gray-700">Subtotal</span>
+                    <div className="flex items-center gap-1.5 text-base md:text-lg text-gray-700">
+                      <img src={Ruppes} alt="rupees" className="w-4 h-4 md:w-5 md:h-5" />
                       <span>{subtotal.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">GST(5) %</span>
-                    <div className="flex items-center gap-1 text-sm text-gray-400">
+                    <span className="text-base md:text-lg text-gray-700">GST (5%)</span>
+                    <div className="flex items-center gap-1.5 text-base md:text-lg text-gray-500">
                       <img
                         src={Ruppes}
                         alt="rupees"
-                        className="w-3.5 h-3.5 opacity-50"
+                        className="w-4 h-4 md:w-5 md:h-5 opacity-60"
                       />
                       <span>{gst.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                    <span className="text-base font-semibold text-[#18B65B]">
+                  <div className="border-t border-gray-200 pt-5 flex items-center justify-between">
+                    <span className="text-xl md:text-2xl font-bold text-[#18B65B]">
                       Total Amount
                     </span>
-                    <div className="flex items-center gap-1 text-base font-semibold text-[#18B65B]">
-                      <img src={Ruppes} alt="rupees" className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 text-xl md:text-2xl font-bold text-[#18B65B]">
+                      <img src={Ruppes} alt="rupees" className="w-5 h-5 md:w-6 md:h-6" />
                       <span>{totalAmount.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] mt-5 px-4 py-5 border border-gray-100 shadow-sm">
-                <h3 className="text-sm font-semibold text-black mb-4">
-                  Select The Payment Method
+              {/* Payment Methods Section - Taking full width */}
+              <div className="bg-white rounded-[32px] px-6 py-8 border border-gray-100 shadow-sm w-full">
+                <h3 className="text-xl md:text-2xl font-bold text-black mb-6">
+                  Select Payment Method
                 </h3>
 
                 <div className="space-y-4">
@@ -269,8 +276,14 @@ const BillPage: React.FC<BillPageProps> = ({
                     onClick={() => setPaymentMethod("cash")}
                   />
                 </div>
+
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <p className="text-sm text-gray-500 text-center">
+                    Secure payment powered by your restaurant
+                  </p>
+                </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
